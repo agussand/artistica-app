@@ -1,1 +1,68 @@
-/* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Estilos personalizados para navegación por teclado */
+@layer base {
+  * {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+  }
+
+  body {
+    @apply bg-gray-50 text-gray-900 font-sans;
+  }
+
+  /* Mejorar la visibilidad del focus para navegación por teclado */
+  .focus-visible {
+    @apply ring-2 ring-primary-500 ring-offset-2;
+  }
+
+  /* Estilos para botones con navegación por teclado */
+  .btn-primary {
+    @apply bg-primary-600 text-white px-4 py-2 rounded-lg font-medium
+    hover:bg-primary-700 focus:bg-primary-700
+    transition-colors duration-200;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-medium
+    hover:bg-gray-300 focus:bg-gray-300
+    transition-colors duration-200;
+  }
+
+  /* Estilos para inputs */
+  .input-field {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg
+    focus:border-primary-500 focus:ring-primary-500
+    transition-colors duration-200;
+  }
+
+  /* Estilos para cards */
+  .card {
+    @apply bg-white rounded-lg shadow-md p-6 border border-gray-200;
+  }
+
+  /* Destacar elementos focuseados para navegación por teclado */
+  .keyboard-nav-item {
+    @apply focus:bg-primary-50 focus:border-primary-300
+    transition-all duration-200 cursor-pointer;
+  }
+}
+
+/* Animaciones suaves */
+@layer utilities {
+  .animate-slide-in {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+}
