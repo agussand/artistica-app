@@ -45,6 +45,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   currentUser: any = null;
   public selectedMenuItem: MenuItem | null = null;
+  public animatingItemIndex: number | null = null;
 
   private router = inject(Router);
   public keyboardNav = inject(KeyboardNavigationService);
@@ -82,27 +83,34 @@ export class DashboardComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       const firstMenuItem = document.getElementById('menu-item-0');
       if (firstMenuItem) {
-        firstMenuItem.focus();
+        firstMenuItem.focus;
       }
     }, 100);
   }
 
-  selectMenuItem(item: MenuItem) {
-    // Agregar una pequeña animación antes de navegar
-    const menuElement = document.getElementById(
-      `menu-item-${this.availableMenuItems.indexOf(item)}`
-    );
-    if (menuElement) {
-      menuElement.style.transform = 'scale(0.95)';
-      setTimeout(() => {
-        this.router.navigate([item.route], {
-          state: {
-            userRole: this.currentUser?.role,
-            fromDashboard: true,
-          },
-        });
-      }, 150);
-    }
+  /**
+   * Este método ahora es llamado tanto por el click como por el Enter.
+   * @param item El objeto del menú seleccionado.
+   * @param index El índice del elemento en el array, para la animación.
+   */
+  selectMenuItem(item: MenuItem, index: number): void {
+    // 1. Activamos la animación estableciendo el índice
+    this.animatingItemIndex = index;
+
+    // 2. Esperamos a que la animación CSS se complete (o sea visible)
+    setTimeout(() => {
+      // 3. Navegamos a la ruta deseada
+      this.router.navigate([item.route], {
+        state: {
+          userRole: this.currentUser?.role,
+          fromDashboard: true,
+        },
+      });
+
+      // 4. (Opcional pero recomendado) Reseteamos el estado de la animación
+      //    Esto es útil si el usuario vuelve atrás rápidamente.
+      this.animatingItemIndex = null;
+    }, 150); // Mantenemos tu delay de 150ms
   }
 
   logout() {

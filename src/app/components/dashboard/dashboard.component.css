@@ -1,5 +1,15 @@
-.active-nav {
-  /* Estas son clases de TailwindCSS */
+/*
+  Clase base para todos los items del menú.
+  Aquí definimos la transición que hará que el 'scale' sea suave.
+*/
+.menu-item-base {
+  transition: transform 0.15s ease-in-out;
+}
 
-  /* Un pequeño extra para que destaque más */
+/*
+  Clase que se APLICA DINÁMICAMENTE con [ngClass].
+  Esta es la que contiene la animación de "click".
+*/
+.menu-item-active {
+  transform: scale(0.97);
 }
