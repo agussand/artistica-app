@@ -34,9 +34,9 @@
   <!-- Welcome Message -->
   <div class="mb-8 text-center">
     <h2 class="text-3xl font-bold text-gray-900 mb-2">
-      ¡Hola {{ currentUser?.username }}!
+      ¡Hola {{ currentUser?.sub === "admin.user" ? "Admin" : "Usuario" }}!
     </h2>
-    <p class="text-lg text-gray-600">
+    <p class="text-lg text-gray-700">
       {{
         currentUser?.role === "ADMIN"
           ? "Administra el sistema y gestiona los artículos"
@@ -57,7 +57,7 @@
       [ngClass]="{ 'menu-item-active': animatingItemIndex === i }"
       [ngClass]="
         keyboardNav.activeIndex === i
-          ? 'translate-x-2 shadow-lg active-nav'
+          ? 'translate-x-2 shadow-lg border-primary-500 bg-primary-50 active-nav'
           : ''
       "
     >

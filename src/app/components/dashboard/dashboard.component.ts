@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { CommonModule, NgForOf } from '@angular/common';
 import { KeyboardNavigableDirective } from '../../shared/directives/keyboard-navigable.directive';
 import { KeyboardNavigationService } from '../../core/services/keyboard-navigation.service';
+import { UserDetails } from '../../core/models/Auth';
+import { AuthService } from '../../core/services/auth/auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,7 +22,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       description: 'Explora y gestiona el catálogo de productos disponibles',
       route: '/articulos',
       icon: '📦',
-      roles: ['USER', 'ADMIN'],
+      roles: ['USUARIO', 'ADMIN'],
       shortcut: '1',
     },
     {
@@ -29,7 +31,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       description: 'Crea presupuestos seleccionando productos y cantidades',
       route: '/presupuesto',
       icon: '💰',
-      roles: ['USER'],
+      roles: ['USUARIO'],
       shortcut: '2',
     },
     {
@@ -43,39 +45,40 @@ export class DashboardComponent implements OnInit, OnDestroy {
     },
   ];
 
-  currentUser: any = null;
+  currentUser: UserDetails | null = null;
   public selectedMenuItem: MenuItem | null = null;
   public animatingItemIndex: number | null = null;
 
+  private authService = inject(AuthService);
   private router = inject(Router);
   public keyboardNav = inject(KeyboardNavigationService);
 
   constructor() {}
 
   ngOnInit() {
-    this.loadCurrentUser();
+    this.currentUser = this.authService.getUserDetails();
+    console.log(this.currentUser);
     this.focusFirstMenuItem();
 
-    // Listener global para shortcuts de teclado
+    // Opcional: Si por alguna razón no hay usuario (ej. token inválido),
+    // podríamos redirigir al login.
+    if (!this.currentUser) {
+      this.logout();
+    }
   }
 
   ngOnDestroy() {}
 
-  private loadCurrentUser() {
-    const userData = localStorage.getItem('currentUser');
-    if (userData) {
-      this.currentUser = JSON.parse(userData);
-    } else {
-      // Si no hay usuario, redirigir al login
-      this.router.navigate(['/login']);
-    }
-  }
-
+  /**
+   * Getter que filtra los items del menú según el rol del usuario actual.
+   * La lógica ahora es mucho más simple.
+   */
   get availableMenuItems(): MenuItem[] {
-    if (!this.currentUser) return [];
-
+    if (!this.currentUser?.role) {
+      return [];
+    }
     return this.menuItems.filter((item) =>
-      item.roles.includes(this.currentUser.role)
+      item.roles.includes(this.currentUser!.role)
     );
   }
 
@@ -114,10 +117,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   logout() {
-    // Limpiar datos del usuario
-    localStorage.removeItem('currentUser');
-
-    // Redirigir al login
+    this.authService.logout();
     this.router.navigate(['/login']);
   }
 }
