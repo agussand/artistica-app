@@ -8,7 +8,7 @@ import {
   Output,
 } from '@angular/core';
 import { filter, Subscription } from 'rxjs';
-import { KeyboardNavigationService } from '../../core/services/keyboard-navigation.service';
+import { KeyboardNavigationService } from '../../core/services/keyboard-navigation/keyboard-navigation.service';
 
 @Directive({
   selector: '[keyboardNavigable]',

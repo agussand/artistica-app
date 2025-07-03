@@ -1,0 +1,110 @@
+<!-- El div raíz ahora es un flexbox vertical que ocupa toda la altura de su host -->
+<div class="flex flex-col h-full">
+  <!-- El contenedor de la tabla es el que crece y tiene el scroll -->
+  <div
+    class="bg-white shadow-md rounded-lg flex-grow overflow-y-auto scroll-pt-12"
+  >
+    <table class="min-w-full">
+      <thead class="bg-gray-50 sticky top-0 z-10 h-12">
+        <tr>
+          <th
+            *ngFor="let col of columns"
+            scope="col"
+            class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
+          >
+            {{ col.header }}
+          </th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <tr
+          *ngFor="let item of page?.content; let i = index"
+          keyboardNavigable
+          (enterPress)="onArticleSelected(item)"
+          (click)="onArticleSelected(item)"
+          class="hover:bg-gray-50"
+          [ngClass]="{ 'active-row': activeIndex === i }"
+        >
+          <td
+            *ngFor="let col of columns"
+            class="px-6 py-4 whitespace-nowrap text-sm text-gray-600"
+          >
+            <!-- El ng-container que ya teníamos -->
+            <ng-container [ngSwitch]="col.field">
+              <!-- NUEVO: Un caso especial para la columna de acciones -->
+              <ng-container *ngSwitchCase="'actions'">
+                <button
+                  (click)="editClicked.emit(item); $event.stopPropagation()"
+                  class="font-medium text-blue-600 hover:text-blue-900"
+                >
+                  Editar
+                </button>
+                <button
+                  (click)="deleteClicked.emit(item); $event.stopPropagation()"
+                  class="ml-4 font-medium text-red-600 hover:text-red-900"
+                >
+                  Eliminar
+                </button>
+              </ng-container>
+
+              <!-- El resto del switch para los datos normales -->
+              <ng-container *ngSwitchDefault>
+                <span *ngIf="col.pipe === 'currency'">{{
+                  item[col.field] | currency : "ARS" : "$"
+                }}</span>
+                <span *ngIf="col.pipe !== 'currency'">{{
+                  item[col.field]
+                }}</span>
+              </ng-container>
+            </ng-container>
+          </td>
+        </tr>
+        <tr *ngIf="page?.empty">
+          <td
+            [attr.colspan]="columns.length"
+            class="text-center py-10 text-gray-500"
+          >
+            No se encontraron resultados.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- La paginación es un elemento que no crece (flex-shrink-0) -->
+  <div
+    *ngIf="page && !page.empty"
+    class="mt-4 flex items-center justify-between text-sm text-gray-600 flex-shrink-0"
+  >
+    <div>
+      <p>
+        Mostrando
+        <span class="font-bold text-gray-800">{{ page.content.length }}</span>
+        de
+        <span class="font-bold text-gray-800">{{ page.totalElements }}</span>
+        resultados
+      </p>
+    </div>
+    <div class="inline-flex items-center rounded-md shadow-sm">
+      <button
+        (click)="onPageChange('previous')"
+        [disabled]="page.first"
+        class="relative inline-flex items-center rounded-l-md px-3 py-2 text-sm font-semibold text-gray-900 bg-white ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Anterior
+      </button>
+      <span
+        class="relative -ml-px inline-flex items-center bg-white px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300"
+      >
+        Página {{ page.number + 1 }} de {{ page.totalPages }}
+      </span>
+      <button
+        (click)="onPageChange('next')"
+        [disabled]="page.last"
+        class="relative -ml-px inline-flex items-center rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 bg-white ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Siguiente
+      </button>
+    </div>
+  </div>
+</div>

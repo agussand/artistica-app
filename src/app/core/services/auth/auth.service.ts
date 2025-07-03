@@ -1,7 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, tap } from 'rxjs';
-import { LoginPOSTDTO, LoginResponse, UserDetails } from '../../models/Auth';
+import {
+  LoginPOSTDTO,
+  LoginResponse,
+  UserDetails,
+} from '../../models/auth.model';
 import { environment } from '../../../../environments/environment.dev';
 
 @Injectable({

@@ -34,9 +34,6 @@ export class LoginComponent {
     if (this.loginForm.invalid) {
       return; // Si el formulario no es válido, no hacemos nada.
     }
-
-    console.log(this.loginForm);
-
     this.isLoading = true;
     this.loginError = null;
 

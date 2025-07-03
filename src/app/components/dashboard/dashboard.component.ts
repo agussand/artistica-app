@@ -3,14 +3,15 @@ import { MenuItem } from './MenuItem';
 import { Router } from '@angular/router';
 import { CommonModule, NgForOf } from '@angular/common';
 import { KeyboardNavigableDirective } from '../../shared/directives/keyboard-navigable.directive';
-import { KeyboardNavigationService } from '../../core/services/keyboard-navigation.service';
-import { UserDetails } from '../../core/models/Auth';
+import { KeyboardNavigationService } from '../../core/services/keyboard-navigation/keyboard-navigation.service';
+import { UserDetails } from '../../core/models/auth.model';
 import { AuthService } from '../../core/services/auth/auth.service';
+import { HeaderComponent } from '../../shared/header/header.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, NgForOf, KeyboardNavigableDirective],
+  imports: [CommonModule, NgForOf, KeyboardNavigableDirective, HeaderComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })
@@ -38,7 +39,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       id: 'admin-articulos',
       title: 'Gestión de Artículos',
       description: 'Administra precios, descripciones y datos de productos',
-      route: '/articulos',
+      route: '/admin/articulos',
       icon: '⚙️',
       roles: ['ADMIN'],
       shortcut: '1',
@@ -57,7 +58,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.currentUser = this.authService.getUserDetails();
-    console.log(this.currentUser);
     this.focusFirstMenuItem();
 
     // Opcional: Si por alguna razón no hay usuario (ej. token inválido),

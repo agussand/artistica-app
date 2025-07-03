@@ -1,0 +1,75 @@
+<div class="flex flex-col h-screen bg-gray-100">
+  <app-header
+    [title]="'Gestión de Artículos'"
+    [user]="currentUser"
+    (logoutClicked)="logout()"
+  >
+  </app-header>
+
+  <main
+    class="max-w-7xl mx-auto w-full flex flex-col flex-grow p-4 sm:p-6 lg:p-8 min-h-0"
+  >
+    <form (ngSubmit)="triggerSearch($event)" class="mb-4 flex-shrink-0">
+      <div class="flex gap-2">
+        <input
+          #searchInput
+          type="text"
+          [formControl]="searchControl"
+          (keydown.enter)="triggerSearch($event)"
+          placeholder="Buscar por ID, descripción o código de barras y presiona Enter..."
+          class="flex-grow px-4 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <button
+          type="submit"
+          class="px-4 py-2 text-white font-semibold bg-blue-600 rounded-md hover:bg-blue-700"
+        >
+          Buscar
+        </button>
+      </div>
+    </form>
+
+    <!-- Usamos la MISMA tabla, pero le pasamos la nueva configuración de columnas -->
+    <!-- y escuchamos los nuevos eventos de acción. -->
+    <app-articulos-table
+      *ngIf="articulosPage$ | async as page; else loading"
+      class="flex-grow min-h-0"
+      [page]="page"
+      [columns]="adminTableColumns"
+      [activeIndex]="keyboardNav.activeIndex"
+      (editClicked)="handleEdit($event)"
+      (deleteClicked)="handleDelete($event)"
+      (pageChange)="handlePageChange($event)"
+    >
+    </app-articulos-table>
+
+    <ng-template #loading>
+      <div class="flex-grow flex items-center justify-center text-gray-500">
+        Cargando...
+      </div>
+    </ng-template>
+
+    <!-- El footer ahora muestra los atajos específicos del administrador. -->
+    <footer class="mt-4 text-center flex-shrink-0">
+      <div
+        class="inline-flex items-center space-x-6 text-sm text-gray-500 bg-white px-6 py-3 rounded-lg shadow-sm border border-gray-200"
+      >
+        <div class="flex items-center space-x-2">
+          <kbd class="px-2 py-1 bg-gray-100 rounded text-xs">↑↓</kbd>
+          <span>Navegar</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <kbd class="font-semibold px-2 py-1 bg-gray-100 rounded text-xs"
+            >F2</kbd
+          >
+          <span>Editar</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <kbd class="font-semibold px-2 py-1 bg-gray-100 rounded text-xs"
+            >Supr</kbd
+          >
+          <span>Eliminar</span>
+        </div>
+      </div>
+    </footer>
+  </main>
+</div>

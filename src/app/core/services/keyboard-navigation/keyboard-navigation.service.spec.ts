@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { KeyboardNavigationService } from './keyboard-navigation.service';
+import { KeyboardNavigationService } from '../keyboard-navigation/keyboard-navigation.service';
 
 describe('KeyboardNavigationService', () => {
   let service: KeyboardNavigationService;

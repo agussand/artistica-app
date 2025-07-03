@@ -1,34 +1,10 @@
 <!-- Header -->
-<header class="bg-white shadow-sm border-b border-gray-200">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center py-4">
-      <div class="flex items-center space-x-4">
-        <h1 class="text-2xl font-bold text-gray-900">Panel de Control</h1>
-        <span
-          class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-          [class]="
-            currentUser?.role === 'ADMIN'
-              ? 'bg-purple-100 text-purple-800'
-              : 'bg-blue-100 text-blue-800'
-          "
-        >
-          {{ currentUser?.role === "ADMIN" ? "Administrador" : "Usuario" }}
-        </span>
-      </div>
-
-      <div class="flex items-center space-x-4">
-        <button
-          (click)="logout()"
-          class="btn-secondary text-sm"
-          id="logout-button"
-        >
-          Cerrar Sesión
-        </button>
-      </div>
-    </div>
-  </div>
-</header>
-
+<app-header
+  [title]="'Panel de Control'"
+  [user]="currentUser"
+  (logoutClicked)="logout()"
+>
+</app-header>
 <!-- Main Content -->
 <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
   <!-- Welcome Message -->

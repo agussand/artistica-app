@@ -1,39 +1,38 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { loginGuard } from './core/guards/login.guard';
+import { ArticulosAdminContainerComponent } from './admin/articulos/articulos-admin-container/articulos-admin-container.component';
+import { adminGuard } from './core/guards/admin.guard';
+import { PresupuestoComponent } from './components/presupuesto/presupuesto.component';
+import { ArticulosContainerComponent } from './components/articulos/articulos-container/articulos-container.component';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { LoginComponent } from './components/login/login.component';
 
 export const routes: Routes = [
   {
     path: 'login',
-    loadComponent: () =>
-      import('./components/login/login.component').then(
-        (m) => m.LoginComponent
-      ),
+    component: LoginComponent,
     canActivate: [loginGuard],
   },
   {
     path: 'dashboard',
-    loadComponent: () =>
-      import('./components/dashboard/dashboard.component').then(
-        (m) => m.DashboardComponent
-      ),
+    component: DashboardComponent,
     canActivate: [authGuard],
   },
   {
     path: 'articulos',
-    loadComponent: () =>
-      import('./components/articulos/articulos.component').then(
-        (m) => m.ArticulosComponent
-      ),
+    component: ArticulosContainerComponent,
     canActivate: [authGuard],
   },
   {
     path: 'presupuesto',
-    loadComponent: () =>
-      import('./components/presupuesto/presupuesto.component').then(
-        (m) => m.PresupuestoComponent
-      ),
+    component: PresupuestoComponent,
     canActivate: [authGuard],
+  },
+  {
+    path: 'admin/articulos',
+    component: ArticulosAdminContainerComponent,
+    canActivate: [adminGuard], // Protegemos la ruta con el nuevo guard
   },
 
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
