@@ -1,0 +1,115 @@
+<!-- Fondo oscuro del modal -->
+<div
+  class="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center"
+>
+  <!-- Panel del Modal -->
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 m-4">
+    <!-- Encabezado del Modal -->
+    <div class="flex justify-between items-center border-b pb-3">
+      <h3 class="text-2xl font-bold text-gray-800">
+        {{ isEditMode ? "Editar Artículo" : "Nuevo Artículo" }}
+      </h3>
+      <button (click)="onCancel()" class="text-gray-400 hover:text-gray-600">
+        &times;
+      </button>
+    </div>
+
+    <!-- Formulario -->
+    <form
+      [formGroup]="articleForm"
+      (ngSubmit)="onSubmit()"
+      class="mt-6 space-y-4"
+    >
+      <!-- Fila de Descripción -->
+      <div>
+        <label for="descripcion" class="block text-sm font-medium text-gray-700"
+          >Descripción</label
+        >
+        <input
+          type="text"
+          id="descripcion"
+          formControlName="descripcion"
+          class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+        />
+      </div>
+
+      <!-- Fila de Precios -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label
+            for="precioLista"
+            class="block text-sm font-medium text-gray-700"
+            >Precio de Lista</label
+          >
+          <input
+            type="number"
+            id="precioLista"
+            formControlName="precioLista"
+            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+          />
+        </div>
+        <div>
+          <label
+            for="precioVenta"
+            class="block text-sm font-medium text-gray-700"
+            >Precio de Venta</label
+          >
+          <input
+            type="number"
+            id="precioVenta"
+            formControlName="precioVenta"
+            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+          />
+        </div>
+      </div>
+
+      <!-- Fila de Código de Barras y Subcategoría -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label
+            for="codigoBarra"
+            class="block text-sm font-medium text-gray-700"
+            >Código de Barras</label
+          >
+          <input
+            type="text"
+            id="codigoBarra"
+            formControlName="codigoBarra"
+            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+          />
+        </div>
+        <div>
+          <label
+            for="subCategoria"
+            class="block text-sm font-medium text-gray-700"
+            >Subcategoría</label
+          >
+          <input
+            type="text"
+            id="subCategoria"
+            formControlName="subCategoria"
+            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+          />
+        </div>
+      </div>
+
+      <!-- Pie del Modal con Botones -->
+      <div class="pt-6 flex justify-end gap-3 border-t">
+        <button
+          type="button"
+          (click)="onCancel()"
+          class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          [disabled]="articleForm.invalid"
+          class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400"
+        >
+          Guardar Cambios
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -86,7 +86,11 @@ export class KeyboardNavigationService implements OnDestroy {
 
     // Solo actuamos sobre las combinaciones que nos interesan.
     const isShortcut =
-      (event.altKey && key === 's') || key === 'f2' || key === 'delete';
+      (event.altKey && key === 's') ||
+      key === 'f2' ||
+      key === 'delete' ||
+      key === 'f4' ||
+      (event.altKey && key === 'n');
 
     if (isShortcut) {
       event.preventDefault(); // Prevenimos la acción por defecto SOLO para nuestros atajos.

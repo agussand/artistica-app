@@ -27,6 +27,24 @@
         </button>
       </div>
     </form>
+    <!-- Botón para crear un nuevo artículo -->
+    <button
+      (click)="handleNewArticle()"
+      type="button"
+      class="ml-4 mb-2 px-4 py-2 text-white font-semibold bg-green-600 rounded-md hover:bg-green-700 flex items-center gap-2 self-start"
+    >
+      <svg
+        xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+        class="w-5 h-5"
+      >
+        <path
+          d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z"
+        />
+      </svg>
+      Nuevo
+    </button>
 
     <!-- Usamos la MISMA tabla, pero le pasamos la nueva configuración de columnas -->
     <!-- y escuchamos los nuevos eventos de acción. -->
@@ -61,6 +79,12 @@
           <kbd class="font-semibold px-2 py-1 bg-gray-100 rounded text-xs"
             >F2</kbd
           >
+          <span>Buscar</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <kbd class="font-semibold px-2 py-1 bg-gray-100 rounded text-xs"
+            >F4</kbd
+          >
           <span>Editar</span>
         </div>
         <div class="flex items-center space-x-2">
@@ -69,7 +93,23 @@
           >
           <span>Eliminar</span>
         </div>
+        <div class="flex items-center space-x-2">
+          <kbd class="font-semibold px-2 py-1 bg-gray-100 rounded text-xs"
+            >Alt+N</kbd
+          >
+          <span>Nuevo</span>
+        </div>
       </div>
     </footer>
   </main>
+
+  <!-- El Modal del Formulario -->
+  <!-- Se renderiza solo si isModalOpen es true -->
+  <app-articulo-form
+    *ngIf="isModalOpen"
+    [article]="editingArticle"
+    (formSubmit)="handleFormSubmit($event)"
+    (closeModal)="handleCloseModal()"
+  >
+  </app-articulo-form>
 </div>

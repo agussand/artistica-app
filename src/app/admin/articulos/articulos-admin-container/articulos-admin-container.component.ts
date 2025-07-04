@@ -29,6 +29,7 @@ import { AuthService } from '../../../core/services/auth/auth.service';
 import { Router } from '@angular/router';
 import { KeyboardNavigationService } from '../../../core/services/keyboard-navigation/keyboard-navigation.service';
 import { ShortcutEvent } from '../../../core/services/keyboard-navigation/shortcut.model';
+import { ArticuloFormComponent } from '../../articulo-form/articulo-form.component';
 
 @Component({
   selector: 'app-articulos-admin-container',
@@ -38,6 +39,7 @@ import { ShortcutEvent } from '../../../core/services/keyboard-navigation/shortc
     ReactiveFormsModule,
     ArticulosTableComponent,
     HeaderComponent,
+    ArticuloFormComponent,
   ],
   templateUrl: './articulos-admin-container.component.html',
   styleUrl: './articulos-admin-container.component.css',
@@ -57,6 +59,10 @@ export class ArticulosAdminContainerComponent implements OnInit, OnDestroy {
   private searchTrigger = new Subject<void>();
   public articulosPage$!: Observable<Page<Articulo>>;
   public currentPageNumber = 0;
+
+  // Nuevas propiedades para manejar el estado del modal
+  public isModalOpen = false;
+  public editingArticle: Articulo | null = null;
 
   public currentUser: UserDetails | null = null;
 
@@ -118,20 +124,54 @@ export class ArticulosAdminContainerComponent implements OnInit, OnDestroy {
 
   // --- NUEVOS MÉTODOS PARA LAS ACCIONES DEL ADMIN ---
 
+  handleNewArticle(): void {
+    this.editingArticle = null; // Nos aseguramos de que no hay un artículo para editar
+    this.isModalOpen = true; // Abrimos el modal
+  }
+
   handleEdit(articulo: Articulo): void {
-    console.log('ADMIN: Editando artículo', articulo);
-    // Aquí iría la lógica para abrir un modal de edición.
-    // ej: this.modalService.open(EditArticleModal, { data: articulo });
+    this.editingArticle = articulo; // Pasamos el artículo seleccionado
+    this.isModalOpen = true; // Abrimos el modal
   }
 
   handleDelete(articulo: Articulo): void {
-    console.log('ADMIN: Eliminando artículo', articulo);
-    // Aquí iría la lógica para mostrar un modal de confirmación.
-    // ej: if (confirm('¿Está seguro?')) { this.articuloService.delete(articulo.id).subscribe(); }
+    this.isModalOpen = false; // Cerramos el modal
+    this.editingArticle = null; // Limpiamos el estado
+  }
+
+  handleCloseModal(): void {
+    this.isModalOpen = false; // Cerramos el modal
+    this.editingArticle = null; // Limpiamos el estado
+  }
+
+  handleFormSubmit(articulo: Articulo): void {
+    if (this.editingArticle && this.editingArticle.id) {
+      // Estamos editando un artículo existente
+      console.log('ADMIN: Guardando cambios de', articulo);
+      // Lógica para llamar al servicio de UPDATE
+      // this.articuloService.update(articulo.id, articulo).subscribe(...)
+    } else {
+      // Estamos creando un nuevo artículo
+      console.log('ADMIN: Creando nuevo artículo', articulo);
+      // Lógica para llamar al servicio de CREATE
+      // this.articuloService.create(articulo).subscribe(...)
+    }
+    this.handleCloseModal(); // Cerramos el modal después de guardar
   }
 
   private handleShortcut(shortcut: ShortcutEvent): void {
     const activeIndex = this.keyboardNav.activeIndex;
+
+    // Atajo F2: Siempre enfoca la búsqueda.
+    if (shortcut.key === 'f2') {
+      this.searchInput.nativeElement.focus();
+      this.searchInput.nativeElement.select();
+    }
+
+    // Atajo Shift + n: Crear un nuevo modal para un nuevo Articulo
+    if (shortcut.altKey && shortcut.key === 'n') {
+      this.handleNewArticle();
+    }
 
     // Atajo F4: Ahora significa "Editar" en este contexto.
     if (shortcut.key === 'f4' && activeIndex !== -1) {
@@ -141,11 +181,6 @@ export class ArticulosAdminContainerComponent implements OnInit, OnDestroy {
         const activeArticle = page.content[activeIndex];
         this.handleEdit(activeArticle);
       });
-    }
-
-    if (shortcut.key === 'f2') {
-      this.searchInput.nativeElement.focus();
-      this.searchInput.nativeElement.select(); // Selecciona todo el texto para fácil reemplazo.
     }
 
     // Atajo Delete: Para eliminar el artículo seleccionado.
