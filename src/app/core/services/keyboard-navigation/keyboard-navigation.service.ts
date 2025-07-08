@@ -1,6 +1,7 @@
-import { ElementRef, Injectable, OnDestroy } from '@angular/core';
+import { ElementRef, inject, Injectable, OnDestroy } from '@angular/core';
 import { filter, fromEvent, Subject, Subscription } from 'rxjs';
-import { ShortcutEvent } from './shortcut.model';
+import { ShortcutEvent } from '../../../shared/models/shortcut.model';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
@@ -17,11 +18,21 @@ export class KeyboardNavigationService implements OnDestroy {
    */
   public activeIndex = -1; // Comienza sin ningún elemento activo
 
+  private router = inject(Router);
+  private isPaused = false;
+
   // Subjects para emitir eventos
   private readonly enterSubject = new Subject<ElementRef>();
   private readonly escapeSubject = new Subject<void>();
   private readonly shortcutSubject = new Subject<ShortcutEvent>();
   private keyboardSubscription: Subscription;
+
+  public pause(): void {
+    this.isPaused = true;
+  }
+  public resume(): void {
+    this.isPaused = false;
+  }
 
   /**
    * Observable que emite cuando se presiona 'Enter' sobre un elemento activo.
@@ -84,6 +95,10 @@ export class KeyboardNavigationService implements OnDestroy {
   private processKeyEvent(event: KeyboardEvent): void {
     const key = event.key.toLowerCase();
 
+    // Si el servicio está pausado, no hacemos NADA, ni siquiera procesamos atajos.
+    // El único evento que debe funcionar es el "Escape" del modal, que tiene su propio listener.
+    if (this.isPaused) return;
+
     // Solo actuamos sobre las combinaciones que nos interesan.
     const isShortcut =
       (event.altKey && key === 's') ||
@@ -127,6 +142,16 @@ export class KeyboardNavigationService implements OnDestroy {
           break;
       }
     }
+
+    // Lógica de Escape Global
+    /*
+    if (key === 'escape') {
+      if (this.router.url !== '/dashboard') {
+        event.preventDefault();
+        this.router.navigate(['/dashboard']);
+      }
+    }
+    */
   }
 
   private moveNext(): void {

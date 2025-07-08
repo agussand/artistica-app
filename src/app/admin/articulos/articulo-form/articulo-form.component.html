@@ -1,0 +1,198 @@
+<div
+  class="fixed inset-0 bg-black bg-opacity-60 z-40 flex items-center justify-center animate-fade-in"
+>
+  <!-- Panel del Modal con animación de scale-up -->
+  <div
+    class="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 m-4 animate-scale-up"
+  >
+    <!-- Encabezado del Modal -->
+    <div
+      class="flex justify-between items-center border-b border-gray-200 pb-3"
+    >
+      <h3 class="text-2xl font-bold text-gray-800">
+        {{ isEditMode ? "Editar Artículo" : "Nuevo Artículo" }}
+      </h3>
+      <button
+        (click)="onCancel()"
+        class="text-gray-400 rounded-full p-1 hover:bg-gray-200 hover:text-gray-800 transition-colors"
+      >
+        <svg
+          xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          class="w-5 h-5"
+        >
+          <path
+            d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
+          />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Formulario -->
+    <form
+      [formGroup]="articleForm"
+      (ngSubmit)="onSubmit()"
+      (keydown.enter)="onSubmit()"
+      class="mt-6 space-y-4"
+    >
+      <!-- Fila de Descripción -->
+      <div>
+        <label for="descripcion" class="block text-sm font-medium text-gray-700"
+          >Descripción</label
+        >
+        <!-- Añadimos la variable de referencia #descripcionInput -->
+        <input
+          #descripcionInput
+          type="text"
+          id="descripcion"
+          formControlName="descripcion"
+          class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <!-- Fila de Precios -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label
+            for="precioLista"
+            class="block text-sm font-medium text-gray-700"
+            >Precio de Lista</label
+          >
+          <!-- Usamos un div 'relative' para posicionar el símbolo de moneda -->
+          <div class="relative mt-1 rounded-md shadow-sm">
+            <div
+              class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
+            >
+              <span class="text-gray-500 sm:text-sm">$</span>
+            </div>
+            <!-- Cambiamos el tipo a 'text' y añadimos la directiva appCurrencyMask -->
+            <input
+              type="text"
+              id="precioLista"
+              formControlName="precioLista"
+              #precioListaInput
+              appCurrencyMask
+              class="block w-full rounded-md border-gray-300 pl-7 pr-2 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+        <div>
+          <label
+            for="precioVenta"
+            class="block text-sm font-medium text-gray-700"
+            >Precio de Venta</label
+          >
+          <div class="relative mt-1 rounded-md shadow-sm">
+            <div
+              class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
+            >
+              <span class="text-gray-500 sm:text-sm">$</span>
+            </div>
+            <input
+              type="text"
+              id="precioVenta"
+              formControlName="precioVenta"
+              appCurrencyMask
+              class="block w-full rounded-md border-gray-300 pl-7 pr-2 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Fila de Código de Barras y Subcategoría -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label for="tasiva" class="block text-sm font-medium text-gray-700"
+            >Tasa IVA (%)</label
+          >
+          <input
+            type="number"
+            id="tasiva"
+            formControlName="tasiva"
+            class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <label
+            for="codigoBarra"
+            class="block text-sm font-medium text-gray-700"
+            >Código de Barras</label
+          >
+          <input
+            type="text"
+            id="codigoBarra"
+            formControlName="codigoBarra"
+            class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+      </div>
+
+      <!-- Pie del Modal con Botones Mejorados -->
+      <div class="pt-6 flex justify-end gap-3 border-t border-gray-200">
+        <button
+          type="button"
+          (click)="onCancel()"
+          class="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 font-semibold"
+        >
+          <svg
+            xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            class="w-5 h-5"
+          >
+            <path
+              d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
+            />
+          </svg>
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          [disabled]="articleForm.invalid || isSaving"
+          class="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 font-semibold w-32"
+        >
+          <!-- Muestra el spinner si está guardando, si no, el icono y el texto -->
+          <ng-container *ngIf="!isSaving; else savingSpinner">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              class="w-5 h-5"
+            >
+              <path
+                d="M9.25 13.25a.75.75 0 001.5 0V4.636l2.955 3.129a.75.75 0 001.09-1.03l-4.25-4.5a.75.75 0 00-1.09 0l-4.25 4.5a.75.75 0 101.09 1.03L9.25 4.636v8.614z"
+              />
+              <path
+                d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z"
+              />
+            </svg>
+            Guardar
+          </ng-container>
+          <ng-template #savingSpinner>
+            <svg
+              class="animate-spin h-5 w-5 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+          </ng-template>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

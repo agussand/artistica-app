@@ -2,6 +2,7 @@
   <app-header
     [title]="'Gestión de Artículos'"
     [user]="currentUser"
+    [showBackButton]="true"
     (logoutClicked)="logout()"
   >
   </app-header>
@@ -9,42 +10,51 @@
   <main
     class="max-w-7xl mx-auto w-full flex flex-col flex-grow p-4 sm:p-6 lg:p-8 min-h-0"
   >
-    <form (ngSubmit)="triggerSearch($event)" class="mb-4 flex-shrink-0">
-      <div class="flex gap-2">
-        <input
-          #searchInput
-          type="text"
-          [formControl]="searchControl"
-          (keydown.enter)="triggerSearch($event)"
-          placeholder="Buscar por ID, descripción o código de barras y presiona Enter..."
-          class="flex-grow px-4 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <button
-          type="submit"
-          class="px-4 py-2 text-white font-semibold bg-blue-600 rounded-md hover:bg-blue-700"
-        >
-          Buscar
-        </button>
-      </div>
-    </form>
-    <!-- Botón para crear un nuevo artículo -->
-    <button
-      (click)="handleNewArticle()"
-      type="button"
-      class="ml-4 mb-2 px-4 py-2 text-white font-semibold bg-green-600 rounded-md hover:bg-green-700 flex items-center gap-2 self-start"
-    >
-      <svg
-        xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)"
-        viewBox="0 0 20 20"
-        fill="currentColor"
-        class="w-5 h-5"
+    <div class="mb-4 flex justify-between items-center flex-shrink-0 gap-4">
+      <!-- El formulario de búsqueda ahora ocupa el espacio disponible -->
+      <form
+        (ngSubmit)="triggerSearch($event)"
+        (keydown.enter)="triggerSearch($event)"
+        (submit)="triggerSearch($event)"
+        class="flex-grow"
       >
-        <path
-          d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z"
-        />
-      </svg>
-      Nuevo
-    </button>
+        <div class="flex gap-2">
+          <input
+            #searchInput
+            type="text"
+            [formControl]="searchControl"
+            placeholder="Buscar por ID, descripción o código de barras y presiona Enter..."
+            class="w-full px-4 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            type="submit"
+            class="px-4 py-2 text-white font-semibold bg-blue-600 rounded-md hover:bg-blue-700"
+          >
+            Buscar
+          </button>
+        </div>
+      </form>
+
+      <!-- El botón "Nuevo" ahora está a la derecha, alineado con la barra. -->
+      <button
+        (click)="handleNewArticle()"
+        type="button"
+        class="px-4 py-2 text-white font-semibold bg-green-600 rounded-md hover:bg-green-700 flex items-center gap-2 self-center flex-shrink-0"
+      >
+        <svg
+          xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          class="w-5 h-5"
+        >
+          <path
+            d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z"
+          />
+        </svg>
+        Nuevo
+      </button>
+    </div>
+    <!-- Botón para crear un nuevo artículo -->
 
     <!-- Usamos la MISMA tabla, pero le pasamos la nueva configuración de columnas -->
     <!-- y escuchamos los nuevos eventos de acción. -->
@@ -65,43 +75,8 @@
         Cargando...
       </div>
     </ng-template>
-
-    <!-- El footer ahora muestra los atajos específicos del administrador. -->
-    <footer class="mt-4 text-center flex-shrink-0">
-      <div
-        class="inline-flex items-center space-x-6 text-sm text-gray-500 bg-white px-6 py-3 rounded-lg shadow-sm border border-gray-200"
-      >
-        <div class="flex items-center space-x-2">
-          <kbd class="px-2 py-1 bg-gray-100 rounded text-xs">↑↓</kbd>
-          <span>Navegar</span>
-        </div>
-        <div class="flex items-center space-x-2">
-          <kbd class="font-semibold px-2 py-1 bg-gray-100 rounded text-xs"
-            >F2</kbd
-          >
-          <span>Buscar</span>
-        </div>
-        <div class="flex items-center space-x-2">
-          <kbd class="font-semibold px-2 py-1 bg-gray-100 rounded text-xs"
-            >F4</kbd
-          >
-          <span>Editar</span>
-        </div>
-        <div class="flex items-center space-x-2">
-          <kbd class="font-semibold px-2 py-1 bg-gray-100 rounded text-xs"
-            >Supr</kbd
-          >
-          <span>Eliminar</span>
-        </div>
-        <div class="flex items-center space-x-2">
-          <kbd class="font-semibold px-2 py-1 bg-gray-100 rounded text-xs"
-            >Alt+N</kbd
-          >
-          <span>Nuevo</span>
-        </div>
-      </div>
-    </footer>
   </main>
+  <app-shortcuts-footer [shortcuts]="adminViewShortcuts"></app-shortcuts-footer>
 
   <!-- El Modal del Formulario -->
   <!-- Se renderiza solo si isModalOpen es true -->
@@ -109,6 +84,7 @@
     *ngIf="isModalOpen"
     [article]="editingArticle"
     (formSubmit)="handleFormSubmit($event)"
+    [isSaving]="isSaving"
     (closeModal)="handleCloseModal()"
   >
   </app-articulo-form>

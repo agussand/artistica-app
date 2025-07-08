@@ -2,6 +2,7 @@
   <app-header
     [title]="'Buscar artículos'"
     [user]="currentUser"
+    [showBackButton]="true"
     (logoutClicked)="logout()"
   >
   </app-header>
@@ -48,21 +49,6 @@
     </ng-template>
 
     <!-- HIJO 3: Footer (no crece) -->
-    <footer class="mt-4 text-center flex-shrink-0">
-      <div
-        class="inline-flex items-center space-x-6 text-sm text-gray-500 bg-white px-6 py-3 rounded-lg shadow-sm border border-gray-200"
-      >
-        <div class="flex items-center space-x-2">
-          <kbd class="px-2 py-1 bg-gray-100 rounded text-xs">↑↓</kbd>
-          <span>Navegar</span>
-        </div>
-        <div class="flex items-center space-x-2">
-          <kbd class="font-semibold px-2 py-1 bg-gray-100 rounded text-xs"
-            >F2</kbd
-          >
-          <span>Buscar</span>
-        </div>
-      </div>
-    </footer>
   </main>
+  <app-shortcuts-footer [shortcuts]="viewShortcuts"></app-shortcuts-footer>
 </div>

@@ -4,3 +4,8 @@ export interface ShortcutEvent {
   ctrlKey: boolean;
   shiftKey: boolean;
 }
+
+export interface Shortcut {
+  key: string;
+  description: string;
+}

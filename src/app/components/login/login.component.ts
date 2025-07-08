@@ -17,17 +17,28 @@ import { AuthService } from '../../core/services/auth/auth.service';
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   loginError: string | null = null;
   isLoading = false;
   private authService = inject(AuthService);
 
-  constructor(private fb: FormBuilder, private router: Router) {
+  private fb = inject(FormBuilder);
+  private router = inject(Router);
+
+  constructor() {
     this.loginForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
       password: ['', [Validators.required, Validators.minLength(6)]],
     });
+  }
+  ngOnInit(): void {
+    this.focusUserInput();
+  }
+
+  focusUserInput() {
+    const userInput = document.getElementById('username');
+    userInput?.focus();
   }
 
   onSubmit(): void {

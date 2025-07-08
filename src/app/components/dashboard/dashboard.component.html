@@ -1,100 +1,96 @@
-<!-- Header -->
-<app-header
-  [title]="'Panel de Control'"
-  [user]="currentUser"
-  (logoutClicked)="logout()"
->
-</app-header>
-<!-- Main Content -->
-<main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-  <!-- Welcome Message -->
-  <div class="mb-8 text-center">
-    <h2 class="text-3xl font-bold text-gray-900 mb-2">
-      ¡Hola {{ currentUser?.sub === "admin.user" ? "Admin" : "Usuario" }}!
-    </h2>
-    <p class="text-lg text-gray-700">
-      {{
-        currentUser?.role === "ADMIN"
-          ? "Administra el sistema y gestiona los artículos"
-          : "Busca artículos y crea presupuestos"
-      }}
-    </p>
-  </div>
+<!-- 1. El div raíz controla el layout de toda la pantalla -->
+<div class="flex flex-col h-screen bg-gray-100">
+  <!-- 2. El header ocupa su espacio natural (no crece) -->
+  <app-header
+    [title]="'Panel de Control'"
+    [user]="currentUser"
+    (logoutClicked)="logout()"
+  >
+  </app-header>
 
-  <!-- Menu List -->
-  <div class="max-w-2xl mx-auto space-y-4">
-    <div
-      *ngFor="let item of availableMenuItems; let i = index"
-      keyboardNavigable
-      (enterPress)="selectMenuItem(item, i)"
-      (click)="selectMenuItem(item, i)"
-      [id]="'menu-item-' + i"
-      class="group menu-item-base card cursor-pointer transform transition-all duration-200 group border-l-4 border-transparent active-nav:outline-none"
-      [ngClass]="{ 'menu-item-active': animatingItemIndex === i }"
-      [ngClass]="
-        keyboardNav.activeIndex === i
-          ? 'translate-x-2 shadow-lg border-primary-500 bg-primary-50 active-nav'
-          : ''
-      "
-    >
-      <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-4">
-          <div class="flex-shrink-0">
-            <div
-              class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center group-[.active-nav]:bg-primary-100 transition-colors"
-            >
-              <span class="text-2xl">{{ item.icon }}</span>
+  <!-- 3. El main ahora es un elemento flex que crece (flex-grow) para ocupar
+         todo el espacio sobrante y centra su contenido. -->
+  <main
+    class="flex-grow flex flex-col items-center justify-center sm:px-6 lg:px-8"
+  >
+    <!-- Este div interno ahora solo se preocupa de su propio contenido -->
+    <div class="w-full">
+      <!-- Welcome Message -->
+      <div class="mb-8 text-center">
+        <h2 class="text-3xl font-bold text-gray-900 mb-2">
+          ¡Hola {{ currentUser?.sub === "admin.user" ? "Admin" : "Usuario" }}!
+        </h2>
+        <p class="text-lg text-gray-700">
+          {{
+            currentUser?.role === "ADMIN"
+              ? "Administra el sistema y gestiona los artículos"
+              : "Busca artículos y crea presupuestos"
+          }}
+        </p>
+      </div>
+
+      <!-- Menu List -->
+      <div class="max-w-2xl mx-auto space-y-4">
+        <div
+          *ngFor="let item of availableMenuItems; let i = index"
+          keyboardNavigable
+          (enterPress)="selectMenuItem(item, i)"
+          (click)="selectMenuItem(item, i)"
+          [id]="'menu-item-' + i"
+          class="group menu-item-base card cursor-pointer transform transition-all duration-200 group border-l-4 border-transparent active-nav:outline-none"
+          [ngClass]="{
+            'menu-item-active': animatingItemIndex === i,
+            'translate-x-2 shadow-lg border-primary-600 bg-primary-100 active-nav':
+              keyboardNav.activeIndex === i
+          }"
+        >
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+              <div class="flex-shrink-0">
+                <div
+                  class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center group-[.active-nav]:bg-primary-100 transition-colors"
+                >
+                  <span class="text-2xl">{{ item.icon }}</span>
+                </div>
+              </div>
+
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center space-x-3">
+                  <h3
+                    class="text-lg font-semibold text-gray-900 group-[.active-nav]:text-primary-700 transition-colors"
+                  >
+                    {{ item.title }}
+                  </h3>
+                </div>
+                <p
+                  class="mt-1 text-sm text-gray-600 group-[.active-nav]:text-gray-700 transition-colors"
+                >
+                  {{ item.description }}
+                </p>
+              </div>
             </div>
-          </div>
 
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center space-x-3">
-              <h3
-                class="text-lg font-semibold text-gray-900 group-[.active-nav]:text-primary-700 transition-colors"
+            <div class="flex-shrink-0">
+              <svg
+                class="w-6 h-6 text-gray-400 group-[.active-nav]:text-primary-500 transition-all duration-200 group-[.active-nav]:translate-x-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                {{ item.title }}
-              </h3>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
             </div>
-            <p
-              class="mt-1 text-sm text-gray-600 group-[.active-nav]:text-gray-700 transition-colors"
-            >
-              {{ item.description }}
-            </p>
           </div>
         </div>
-
-        <div class="flex-shrink-0">
-          <svg
-            class="w-6 h-6 text-gray-400 group-[.active-nav]:text-primary-500 transition-all duration-200 group-[.active-nav]:translate-x-1"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M13 7l5 5m0 0l-5 5m5-5H6"
-            />
-          </svg>
-        </div>
       </div>
     </div>
-  </div>
+  </main>
 
-  <!-- Keyboard Navigation Help -->
-  <div class="mt-12 text-center">
-    <div
-      class="inline-flex items-center space-x-6 text-sm text-gray-500 bg-white px-6 py-3 rounded-lg shadow-sm border border-gray-200"
-    >
-      <div class="flex items-center space-x-2">
-        <kbd class="px-2 py-1 bg-gray-100 rounded text-xs">↑↓</kbd>
-        <span>Navegar</span>
-      </div>
-      <div class="flex items-center space-x-2">
-        <kbd class="px-2 py-1 bg-gray-100 rounded text-xs">Enter</kbd>
-        <span>Seleccionar</span>
-      </div>
-    </div>
-  </div>
-</main>
+  <!-- 4. El footer ahora es un hermano del main y se posiciona correctamente al final -->
+  <app-shortcuts-footer [shortcuts]="dashboardShortcuts"></app-shortcuts-footer>
+</div>

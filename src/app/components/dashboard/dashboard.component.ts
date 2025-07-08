@@ -1,21 +1,34 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { MenuItem } from './MenuItem';
 import { Router } from '@angular/router';
 import { CommonModule, NgForOf } from '@angular/common';
-import { KeyboardNavigableDirective } from '../../shared/directives/keyboard-navigable.directive';
+import { KeyboardNavigableDirective } from '../../shared/directives/keyboard-navigable/keyboard-navigable.directive';
 import { KeyboardNavigationService } from '../../core/services/keyboard-navigation/keyboard-navigation.service';
 import { UserDetails } from '../../core/models/auth.model';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { HeaderComponent } from '../../shared/header/header.component';
+import { ShortcutsFooterComponent } from '../../shared/shortcuts-footer/shortcuts-footer.component';
+import { Shortcut } from '../../shared/models/shortcut.model';
+import { MenuItem } from '../../shared/models/menu.model';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, NgForOf, KeyboardNavigableDirective, HeaderComponent],
+  imports: [
+    CommonModule,
+    NgForOf,
+    KeyboardNavigableDirective,
+    HeaderComponent,
+    ShortcutsFooterComponent,
+  ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })
 export class DashboardComponent implements OnInit, OnDestroy {
+  public dashboardShortcuts: Shortcut[] = [
+    { key: '↑↓', description: 'Navegar' },
+    { key: 'Enter', description: 'Seleccionar' },
+  ];
+
   private readonly menuItems: MenuItem[] = [
     {
       id: 'articulos',
@@ -86,7 +99,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       const firstMenuItem = document.getElementById('menu-item-0');
       if (firstMenuItem) {
-        firstMenuItem.focus;
+        firstMenuItem.focus();
+        this.keyboardNav.activeIndex = 0;
       }
     }, 100);
   }

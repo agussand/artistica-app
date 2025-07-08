@@ -1,0 +1,25 @@
+<!-- El footer ahora es un bloque normal. El padre lo posicionará al final. -->
+<footer
+  class="bg-white border-t border-gray-200 shadow-inner z-20 flex-shrink-0"
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-center h-12">
+      <div
+        class="flex items-center flex-wrap justify-center gap-x-8 text-sm text-gray-600"
+      >
+        <!-- Iteramos sobre el array de atajos que recibimos del padre -->
+        <div
+          *ngFor="let shortcut of shortcuts"
+          class="flex items-center space-x-2"
+        >
+          <kbd
+            class="font-mono font-semibold px-2 py-1.5 bg-gray-200 text-gray-800 rounded-md border border-b-2 border-gray-300 text-xs"
+          >
+            {{ shortcut.key }}
+          </kbd>
+          <span>{{ shortcut.description }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>

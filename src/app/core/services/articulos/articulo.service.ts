@@ -15,6 +15,9 @@ export class ArticuloService {
 
   constructor() {}
 
+  /**
+   * Obtiene la lista de articulos para la vista del usuario
+   */
   getArticulos(
     searchTerm?: string,
     page = 0,
@@ -54,5 +57,27 @@ export class ArticuloService {
     }
 
     return this.http.get<Page<Articulo>>(`${this.apiUrl}/admin`, { params });
+  }
+
+  /**
+   * Crea un nuevo artículo en el backend.
+   * @param articulo Los datos del artículo a crear (sin el ID).
+   */
+  createArticulo(articulo: Partial<Articulo>): Observable<Articulo> {
+    // Llama al endpoint POST /api/articulos
+    return this.http.post<Articulo>(this.apiUrl, articulo);
+  }
+
+  /**
+   * Actualiza un artículo existente en el backend.
+   * @param id El ID del artículo a actualizar.
+   * @param articulo Los nuevos datos del artículo.
+   */
+  updateArticulo(
+    id: number,
+    articulo: Partial<Articulo>
+  ): Observable<Articulo> {
+    // Llama al endpoint PUT /api/articulos/{id}
+    return this.http.put<Articulo>(`${this.apiUrl}/${id}`, articulo);
   }
 }

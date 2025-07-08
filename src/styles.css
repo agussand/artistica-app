@@ -1,39 +1,60 @@
+/* 1. DIRECTIVAS BASE DE TAILWIND */
+/* Siempre deben ir al principio y en este orden. */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Estilos personalizados para navegación por teclado */
+/* ===================================================================================== */
+/* 2. CAPA BASE (@layer base) */
+/* Aquí van los estilos para elementos HTML puros y estilos base de la aplicación. */
+/* ===================================================================================== */
 @layer base {
-  * {
-    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
-  }
-
   body {
-    @apply bg-gray-50 text-gray-900 font-sans;
+    @apply bg-gray-100 text-gray-900 font-sans;
   }
 
-  /* Mejorar la visibilidad del focus para navegación por teclado */
-  .focus-visible {
-    @apply ring-2 ring-primary-500 ring-offset-2;
+  /* Opcional: Un estilo de foco base y accesible para toda la aplicación.
+     'focus-visible' solo se activa para usuarios de teclado, manteniendo la
+     interfaz limpia para los usuarios de ratón. */
+  * {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2;
+  }
+}
+
+/* ===================================================================================== */
+/* 3. CAPA DE COMPONENTES (@layer components) */
+/* Aquí es donde creas tus propias clases de componentes reutilizables. */
+/* ===================================================================================== */
+@layer components {
+  /* Estilos para la tabla de artículos */
+  .active-row {
+    @apply bg-blue-100 text-blue-900;
+  }
+  .active-row .text-blue-600 {
+    @apply text-blue-800 font-semibold;
+  }
+  .active-row .text-red-600 {
+    @apply text-red-800 font-semibold;
+  }
+  tr[keyboardNavigable]:focus {
+    outline: none;
   }
 
-  /* Estilos para botones con navegación por teclado */
+  /* Estilos para botones */
   .btn-primary {
-    @apply bg-primary-600 text-white px-4 py-2 rounded-lg font-medium
-    hover:bg-primary-700 focus:bg-primary-700
-    transition-colors duration-200;
+    @apply bg-blue-600 text-white px-4 py-2 rounded-lg font-medium
+    hover:bg-blue-700 transition-colors duration-200;
   }
 
   .btn-secondary {
     @apply bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-medium
-    hover:bg-gray-300 focus:bg-gray-300
-    transition-colors duration-200;
+    hover:bg-gray-300 transition-colors duration-200;
   }
 
   /* Estilos para inputs */
   .input-field {
     @apply w-full px-3 py-2 border border-gray-300 rounded-lg
-    focus:border-primary-500 focus:ring-primary-500
+    focus:border-blue-500 focus:ring-blue-500
     transition-colors duration-200;
   }
 
@@ -41,28 +62,74 @@
   .card {
     @apply bg-white rounded-lg shadow-md p-6 border border-gray-200;
   }
-
-  /* Destacar elementos focuseados para navegación por teclado */
-  .keyboard-nav-item {
-    @apply focus:bg-primary-50 focus:border-primary-300
-    transition-all duration-200 cursor-pointer;
-  }
 }
 
-/* Animaciones suaves */
+/* ===================================================================================== */
+/* 4. CAPA DE UTILIDADES (@layer utilities) */
+/* Aquí es donde defines tus animaciones y otras clases de utilidad personalizadas. */
+/* ===================================================================================== */
 @layer utilities {
+  /* Animaciones para el modal */
+  .animate-fade-in {
+    animation: fadeIn 0.2s ease-out;
+  }
+  .animate-scale-up {
+    animation: scaleUp 0.2s ease-out;
+  }
+
+  /* Animación para el toast */
+  .animate-fade-in-right {
+    animation: fadeInRight 0.3s ease-out;
+  }
+
+  /* Animación extra que tenías */
   .animate-slide-in {
     animation: slideIn 0.3s ease-out;
   }
+}
 
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateX(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
+/* ===================================================================================== */
+/* 5. DEFINICIONES DE @keyframes */
+/* Estas van al final, fuera de cualquier capa. */
+/* ===================================================================================== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }

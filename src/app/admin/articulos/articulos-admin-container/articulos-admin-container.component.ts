@@ -12,7 +12,11 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ArticulosTableComponent } from '../../../components/articulos/articulos-table/articulos-table.component';
 import { HeaderComponent } from '../../../shared/header/header.component';
 import {
+  delay,
+  finalize,
+  merge,
   Observable,
+  of,
   startWith,
   Subject,
   switchMap,
@@ -28,8 +32,10 @@ import { ArticuloService } from '../../../core/services/articulos/articulo.servi
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { Router } from '@angular/router';
 import { KeyboardNavigationService } from '../../../core/services/keyboard-navigation/keyboard-navigation.service';
-import { ShortcutEvent } from '../../../core/services/keyboard-navigation/shortcut.model';
-import { ArticuloFormComponent } from '../../articulo-form/articulo-form.component';
+import { Shortcut, ShortcutEvent } from '../../../shared/models/shortcut.model';
+import { NotificationService } from '../../../core/services/notification/notification.service';
+import { ShortcutsFooterComponent } from '../../../shared/shortcuts-footer/shortcuts-footer.component';
+import { ArticuloFormComponent } from '../articulo-form/articulo-form.component';
 
 @Component({
   selector: 'app-articulos-admin-container',
@@ -40,15 +46,28 @@ import { ArticuloFormComponent } from '../../articulo-form/articulo-form.compone
     ArticulosTableComponent,
     HeaderComponent,
     ArticuloFormComponent,
+    ShortcutsFooterComponent,
   ],
   templateUrl: './articulos-admin-container.component.html',
   styleUrl: './articulos-admin-container.component.css',
 })
 export class ArticulosAdminContainerComponent implements OnInit, OnDestroy {
+  public adminViewShortcuts: Shortcut[] = [
+    { key: '↑↓', description: 'Navegar' },
+    { key: 'F2', description: 'Buscar' },
+    { key: 'F4', description: 'Editar' },
+    { key: 'Supr', description: 'Eliminar' },
+    { key: 'Alt+N', description: 'Nuevo' },
+    { key: 'Esc', description: 'Volver al inicio' },
+  ];
+
   private articuloService = inject(ArticuloService);
   private authService = inject(AuthService);
   private router = inject(Router);
   public keyboardNav = inject(KeyboardNavigationService);
+
+  public isSaving = false; // Nueva propiedad para el estado de carga
+  private notificationService = inject(NotificationService);
 
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
   private destroy$ = new Subject<void>();
@@ -56,15 +75,17 @@ export class ArticulosAdminContainerComponent implements OnInit, OnDestroy {
   // La lógica de búsqueda y paginación es idéntica a la del otro contenedor.
   public searchControl = new FormControl('');
   private pageSubject = new Subject<number>();
-  private searchTrigger = new Subject<void>();
   public articulosPage$!: Observable<Page<Articulo>>;
   public currentPageNumber = 0;
 
   // Nuevas propiedades para manejar el estado del modal
   public isModalOpen = false;
   public editingArticle: Articulo | null = null;
-
   public currentUser: UserDetails | null = null;
+  // Renombramos el trigger para mayor claridad
+  private userSearchTrigger = new Subject<void>();
+  // Creamos un nuevo trigger para refrescar los datos sin perder la selección
+  private refreshDataTrigger = new Subject<void>();
 
   // ¡AQUÍ ESTÁ LA CLAVE! Definimos una nueva configuración de columnas para el admin.
   public adminTableColumns: TableColumn[] = [
@@ -82,10 +103,18 @@ export class ArticulosAdminContainerComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.currentUser = this.authService.getUserDetails();
 
-    const initialSearch$ = this.searchTrigger.pipe(startWith(null));
+    this.keyboardNav.activeIndex = -1;
+    this.keyboardNav.resume();
 
-    this.articulosPage$ = initialSearch$.pipe(
-      tap(() => (this.keyboardNav.activeIndex = -1)),
+    const search$ = this.userSearchTrigger.pipe(
+      tap(() => (this.keyboardNav.activeIndex = -1))
+    );
+
+    const refresh$ = this.refreshDataTrigger.pipe();
+
+    const dataTrigger$ = merge(search$, refresh$).pipe(startWith(null));
+
+    this.articulosPage$ = dataTrigger$.pipe(
       tap(() => this.pageSubject.next(0)),
       switchMap(() => this.pageSubject.pipe(startWith(0))),
       switchMap((page) => {
@@ -110,7 +139,8 @@ export class ArticulosAdminContainerComponent implements OnInit, OnDestroy {
 
   triggerSearch(event?: Event): void {
     if (event) event.preventDefault();
-    this.searchTrigger.next();
+    // Ahora llamamos al trigger específico del usuario.
+    this.userSearchTrigger.next();
     this.searchInput.nativeElement.blur();
   }
 
@@ -125,11 +155,13 @@ export class ArticulosAdminContainerComponent implements OnInit, OnDestroy {
   // --- NUEVOS MÉTODOS PARA LAS ACCIONES DEL ADMIN ---
 
   handleNewArticle(): void {
+    this.keyboardNav.pause();
     this.editingArticle = null; // Nos aseguramos de que no hay un artículo para editar
     this.isModalOpen = true; // Abrimos el modal
   }
 
   handleEdit(articulo: Articulo): void {
+    this.keyboardNav.pause();
     this.editingArticle = articulo; // Pasamos el artículo seleccionado
     this.isModalOpen = true; // Abrimos el modal
   }
@@ -142,21 +174,38 @@ export class ArticulosAdminContainerComponent implements OnInit, OnDestroy {
   handleCloseModal(): void {
     this.isModalOpen = false; // Cerramos el modal
     this.editingArticle = null; // Limpiamos el estado
+    this.keyboardNav.resume(); // Reanudamos la navegación
   }
 
   handleFormSubmit(articulo: Articulo): void {
+    this.isSaving = true;
+    let saveOperation$: Observable<Articulo>;
+
     if (this.editingArticle && this.editingArticle.id) {
-      // Estamos editando un artículo existente
-      console.log('ADMIN: Guardando cambios de', articulo);
-      // Lógica para llamar al servicio de UPDATE
-      // this.articuloService.update(articulo.id, articulo).subscribe(...)
+      saveOperation$ = this.articuloService.updateArticulo(
+        this.editingArticle.id,
+        articulo
+      );
     } else {
-      // Estamos creando un nuevo artículo
-      console.log('ADMIN: Creando nuevo artículo', articulo);
-      // Lógica para llamar al servicio de CREATE
-      // this.articuloService.create(articulo).subscribe(...)
+      saveOperation$ = this.articuloService.createArticulo(articulo);
     }
-    this.handleCloseModal(); // Cerramos el modal después de guardar
+
+    saveOperation$.pipe(finalize(() => (this.isSaving = false))).subscribe({
+      next: () => {
+        const message = this.editingArticle
+          ? 'Artículo actualizado correctamente.'
+          : 'Artículo creado con éxito.';
+        this.notificationService.showSuccess(message);
+        this.handleCloseModal();
+        this.refreshDataTrigger.next(); // Refrescamos la tabla
+      },
+      error: (err) => {
+        console.error('Error al guardar:', err);
+        this.notificationService.showError(
+          'Ocurrió un error al guardar el artículo.'
+        );
+      },
+    });
   }
 
   private handleShortcut(shortcut: ShortcutEvent): void {

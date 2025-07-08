@@ -2,6 +2,29 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center py-4">
       <div class="flex items-center space-x-4">
+        <!-- Botón para volver al Dashboard -->
+        <!-- Se muestra solo si el padre le pasa [showBackButton]="true" -->
+        <a
+          *ngIf="showBackButton"
+          routerLink="/dashboard"
+          class="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition-colors"
+          aria-label="Volver al Dashboard"
+          title="Volver al Dashboard"
+        >
+          <svg
+            xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            class="w-5 h-5"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </a>
+
         <h1 class="text-2xl font-bold text-gray-900">{{ title }}</h1>
         <span
           class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium self-stretch"

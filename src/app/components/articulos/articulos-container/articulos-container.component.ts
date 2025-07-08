@@ -26,7 +26,8 @@ import {
   tap,
 } from 'rxjs';
 import { Page } from '../../../shared/models/page.model';
-import { ShortcutEvent } from '../../../core/services/keyboard-navigation/shortcut.model';
+import { Shortcut, ShortcutEvent } from '../../../shared/models/shortcut.model';
+import { ShortcutsFooterComponent } from '../../../shared/shortcuts-footer/shortcuts-footer.component';
 
 @Component({
   selector: 'app-articulos-container',
@@ -36,6 +37,7 @@ import { ShortcutEvent } from '../../../core/services/keyboard-navigation/shortc
     CommonModule,
     HeaderComponent,
     ArticulosTableComponent,
+    ShortcutsFooterComponent,
   ],
   templateUrl: './articulos-container.component.html',
   styleUrl: './articulos-container.component.css',
@@ -45,6 +47,11 @@ export class ArticulosContainerComponent implements OnInit, OnDestroy {
     { field: 'id', header: 'ID' },
     { field: 'descripcion', header: 'Descripción' },
     { field: 'precioVenta', header: 'Precio Venta', pipe: 'currency' },
+  ];
+  public viewShortcuts: Shortcut[] = [
+    { key: '↑↓', description: 'Navegar' },
+    { key: 'F2', description: 'Buscar' },
+    { key: 'Esc', description: 'Volver al inicio' },
   ];
 
   public keyboardNav = inject(KeyboardNavigationService);

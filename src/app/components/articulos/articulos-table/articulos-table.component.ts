@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Page } from '../../../shared/models/page.model';
 import { TableColumn } from '../../../shared/models/table-column.model';
 import { CommonModule, CurrencyPipe } from '@angular/common';
-import { KeyboardNavigableDirective } from '../../../shared/directives/keyboard-navigable.directive';
+import { KeyboardNavigableDirective } from '../../../shared/directives/keyboard-navigable/keyboard-navigable.directive';
 import { KeyboardNavigationService } from '../../../core/services/keyboard-navigation/keyboard-navigation.service';
 
 @Component({
