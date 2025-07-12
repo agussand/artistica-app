@@ -74,17 +74,8 @@
   <!-- La paginación es un elemento que no crece (flex-shrink-0) -->
   <div
     *ngIf="page && !page.empty"
-    class="mt-4 flex items-center justify-between text-sm text-gray-600 flex-shrink-0"
+    class="mt-4 flex items-center justify-end text-sm text-gray-600 flex-shrink-0"
   >
-    <div>
-      <p>
-        Mostrando
-        <span class="font-bold text-gray-800">{{ page.content.length }}</span>
-        de
-        <span class="font-bold text-gray-800">{{ page.totalElements }}</span>
-        resultados
-      </p>
-    </div>
     <div class="inline-flex items-center rounded-md shadow-sm">
       <button
         (click)="onPageChange('previous')"

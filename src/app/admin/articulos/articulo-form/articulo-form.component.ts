@@ -14,18 +14,19 @@ import {
   ViewChild,
 } from '@angular/core';
 import {
+  AbstractControl,
   FormBuilder,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
 import { Articulo } from '../../../core/models/articulo.model';
-import { CurrencyMaskDirective } from '../../../shared/directives/currecy-mask/currency-mask.directive';
+import { NgxMaskDirective } from 'ngx-mask';
 
 @Component({
   selector: 'app-articulo-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CurrencyMaskDirective],
+  imports: [CommonModule, ReactiveFormsModule, NgxMaskDirective],
   templateUrl: './articulo-form.component.html',
   styleUrl: './articulo-form.component.css',
 })
@@ -62,18 +63,39 @@ export class ArticuloFormComponent implements OnInit, OnChanges, AfterViewInit {
   constructor() {
     this.articleForm = this.fb.group({
       id: [null],
-      descripcion: ['', [Validators.required, Validators.minLength(5)]],
+      // Validaciones más robustas
+      descripcion: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(5),
+          Validators.maxLength(300),
+        ],
+      ],
       codigoBarra: [''],
-      precioLista: [0, [Validators.required, Validators.min(0)]],
-      precioVenta: [0, [Validators.required, Validators.min(0)]],
-      tasiva: [21, [Validators.required, Validators.min(0)]], // Valor por defecto 21%
+      precioLista: [
+        0,
+        [Validators.required, Validators.min(0.01), Validators.max(9999999.99)],
+      ],
+      precioVenta: [
+        0,
+        [Validators.required, Validators.min(0.01), Validators.max(9999999.99)],
+      ],
+      tasiva: [21, [Validators.required, Validators.min(0)]],
     });
   }
+
+  // Getter para acceder fácilmente a los controles del formulario desde el HTML
+  get f(): { [key: string]: AbstractControl } {
+    return this.articleForm.controls;
+  }
+
   ngAfterViewInit(): void {
     // Hacemos un pequeño timeout para asegurar que el input sea visible antes de enfocarlo.
     setTimeout(() => {
       if (this.isEditMode) {
         this.precioListaInput.nativeElement.focus();
+        this.precioListaInput.nativeElement.select();
       } else {
         this.descripcionInput.nativeElement.focus();
       }

@@ -36,6 +36,7 @@ import { Shortcut, ShortcutEvent } from '../../../shared/models/shortcut.model';
 import { NotificationService } from '../../../core/services/notification/notification.service';
 import { ShortcutsFooterComponent } from '../../../shared/shortcuts-footer/shortcuts-footer.component';
 import { ArticuloFormComponent } from '../articulo-form/articulo-form.component';
+import { ConfirmationService } from '../../../core/services/confirmation/confirmation.service';
 
 @Component({
   selector: 'app-articulos-admin-container',
@@ -66,6 +67,8 @@ export class ArticulosAdminContainerComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   public keyboardNav = inject(KeyboardNavigationService);
 
+  private confirmationService = inject(ConfirmationService);
+
   public isSaving = false; // Nueva propiedad para el estado de carga
   private notificationService = inject(NotificationService);
 
@@ -93,6 +96,7 @@ export class ArticulosAdminContainerComponent implements OnInit, OnDestroy {
     { field: 'descripcion', header: 'Descripción' },
     { field: 'precioLista', header: 'P. Lista', pipe: 'currency' },
     { field: 'precioVenta', header: 'P. Venta', pipe: 'currency' },
+    { field: 'tasiva', header: 'IVA %' },
     { field: 'status', header: 'Estado' },
     // Añadimos una columna especial para los botones de acción.
     { field: 'actions', header: 'Acciones' },
@@ -167,8 +171,24 @@ export class ArticulosAdminContainerComponent implements OnInit, OnDestroy {
   }
 
   handleDelete(articulo: Articulo): void {
-    this.isModalOpen = false; // Cerramos el modal
-    this.editingArticle = null; // Limpiamos el estado
+    const message = `¿Está seguro de que desea eliminar el artículo "${articulo.descripcion}"?`;
+
+    // 3. Llamamos al servicio de confirmación.
+    this.confirmationService.confirm(message, () => {
+      // Esta es la función que se ejecuta si el usuario confirma.
+      this.articuloService.deleteArticulo(articulo.id).subscribe({
+        next: (articulo) => {
+          this.notificationService.showSuccess(
+            `Artículo ${articulo.descripcion} fué eliminado correctamente`
+          );
+          this.refreshDataTrigger.next(); // Refrescamos la tabla para ver el cambio.
+        },
+        error: (err) => {
+          this.notificationService.showError('Error al eliminar el artículo.');
+          console.error(err);
+        },
+      });
+    });
   }
 
   handleCloseModal(): void {

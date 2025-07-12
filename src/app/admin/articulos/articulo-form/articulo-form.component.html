@@ -49,34 +49,56 @@
           formControlName="descripcion"
           class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
+        <div
+          *ngIf="f['descripcion'].touched && f['descripcion'].errors"
+          class="text-red-600 font-semibold text-xs mt-1"
+        >
+          <div *ngIf="f['descripcion'].errors['required']">
+            La descripción es requerida.
+          </div>
+          <div *ngIf="f['descripcion'].errors['minlength']">
+            Debe tener al menos 5 caracteres.
+          </div>
+        </div>
       </div>
 
       <!-- Fila de Precios -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Grupo de Formulario: Precio de Lista -->
         <div>
           <label
             for="precioLista"
             class="block text-sm font-medium text-gray-700"
             >Precio de Lista</label
           >
-          <!-- Usamos un div 'relative' para posicionar el símbolo de moneda -->
           <div class="relative mt-1 rounded-md shadow-sm">
             <div
               class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
             >
               <span class="text-gray-500 sm:text-sm">$</span>
             </div>
-            <!-- Cambiamos el tipo a 'text' y añadimos la directiva appCurrencyMask -->
             <input
               type="text"
               id="precioLista"
               formControlName="precioLista"
-              #precioListaInput
-              appCurrencyMask
-              class="block w-full rounded-md border-gray-300 pl-7 pr-2 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              mask="separator.2"
+              thousandSeparator="."
+              decimalMarker=","
+              class="block w-full rounded-md border-gray-300 pl-7 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
             />
           </div>
+          <div class="text-red-600 text-xs mt-1 h-4">
+            <span
+              *ngIf="f['precioLista'].touched && f['precioLista'].errors?.['required']"
+              >El precio es requerido.</span
+            >
+            <span
+              *ngIf="f['precioLista'].touched && f['precioLista'].errors?.['min']"
+              >El precio debe ser mayor a cero.</span
+            >
+          </div>
         </div>
+        <!-- Grupo de Formulario: Precio de Venta -->
         <div>
           <label
             for="precioVenta"
@@ -93,9 +115,21 @@
               type="text"
               id="precioVenta"
               formControlName="precioVenta"
-              appCurrencyMask
-              class="block w-full rounded-md border-gray-300 pl-7 pr-2 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              mask="separator.2"
+              thousandSeparator="."
+              decimalMarker=","
+              class="block w-full rounded-md border-gray-300 pl-7 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
             />
+          </div>
+          <div class="text-red-600 text-xs mt-1 h-4">
+            <span
+              *ngIf="f['precioVenta'].touched && f['precioVenta'].errors?.['required']"
+              >El precio es requerido.</span
+            >
+            <span
+              *ngIf="f['precioVenta'].touched && f['precioVenta'].errors?.['min']"
+              >El precio debe ser mayor a cero.</span
+            >
           </div>
         </div>
       </div>

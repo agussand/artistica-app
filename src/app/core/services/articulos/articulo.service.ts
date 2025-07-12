@@ -80,4 +80,12 @@ export class ArticuloService {
     // Llama al endpoint PUT /api/articulos/{id}
     return this.http.put<Articulo>(`${this.apiUrl}/${id}`, articulo);
   }
+
+  /**
+   * Elimina un articulo (no implementado)
+   * @param id El ID del artículo a eliminar
+   */
+  deleteArticulo(id: number): Observable<Articulo> {
+    return this.http.delete<Articulo>(`${this.apiUrl}/${id}`);
+  }
 }
