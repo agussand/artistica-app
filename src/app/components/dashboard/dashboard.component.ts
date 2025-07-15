@@ -45,7 +45,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       description: 'Crea presupuestos seleccionando productos y cantidades',
       route: '/presupuesto',
       icon: '💰',
-      roles: ['USUARIO'],
+      roles: ['USUARIO', 'ADMIN'],
       shortcut: '2',
     },
     {

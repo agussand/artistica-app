@@ -7,48 +7,20 @@
   >
   </app-header>
 
-  <main
-    class="max-w-7xl mx-auto w-full flex flex-col flex-grow p-4 sm:p-6 lg:p-8 min-h-0"
-  >
-    <!-- HIJO 1: Formulario (no crece) -->
-    <form (ngSubmit)="triggerSearch($event)" class="mb-4 flex-shrink-0">
-      <div class="flex gap-2">
-        <input
-          #searchInput
-          type="text"
-          [formControl]="searchControl"
-          (keydown.enter)="triggerSearch($event)"
-          placeholder="Buscar por ID, descripción o código de barras y presiona Enter..."
-          class="flex-grow px-4 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <button
-          type="submit"
-          class="px-4 py-2 text-white font-semibold bg-blue-600 rounded-md hover:bg-blue-700"
-        >
-          Buscar
-        </button>
-      </div>
-    </form>
-
-    <!-- HIJO 2: El componente de la tabla. Ahora es el que crece para llenar el espacio. -->
-    <app-articulos-table
-      *ngIf="articulosPage$ | async as page; else loading"
-      class="flex-grow min-h-0"
-      [page]="page"
-      [columns]="tableColumns"
-      [activeIndex]="keyboardNav.activeIndex"
-      (articleSelected)="handleArticleSelection($event)"
-      (pageChange)="handlePageChange($event)"
-    >
-    </app-articulos-table>
-
-    <ng-template #loading>
-      <div class="flex-grow flex items-center justify-center text-gray-500">
-        Cargando...
-      </div>
-    </ng-template>
-
-    <!-- HIJO 3: Footer (no crece) -->
+  <!-- El main es ahora el contenedor de la página, y es el que tiene el scroll -->
+  <main class="flex-grow p-4 sm:p-6 lg:p-8 min-h-0 overflow-y-auto">
+    <div class="max-w-7xl mx-auto w-full h-full flex flex-col">
+      <!-- El componente de búsqueda ahora es el que crece para llenar el main -->
+      <app-article-search-feature
+        class="flex-grow min-h-0"
+        [searchFunction]="'user'"
+        [tableColumns]="tableColumns"
+        [shortcuts]="viewShortcuts"
+        (articleSelected)="handleArticleSelection($event)"
+      >
+      </app-article-search-feature>
+    </div>
   </main>
+
   <app-shortcuts-footer [shortcuts]="viewShortcuts"></app-shortcuts-footer>
 </div>

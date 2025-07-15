@@ -69,7 +69,7 @@ export class ArticuloFormComponent implements OnInit, OnChanges, AfterViewInit {
         [
           Validators.required,
           Validators.minLength(5),
-          Validators.maxLength(300),
+          Validators.maxLength(50),
         ],
       ],
       codigoBarra: [''],
@@ -99,7 +99,7 @@ export class ArticuloFormComponent implements OnInit, OnChanges, AfterViewInit {
       } else {
         this.descripcionInput.nativeElement.focus();
       }
-    }, 0);
+    }, 100);
   }
 
   ngOnInit(): void {

@@ -1,4 +1,10 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+} from '@angular/core';
 import { Page } from '../../../shared/models/page.model';
 import { TableColumn } from '../../../shared/models/table-column.model';
 import { CommonModule, CurrencyPipe } from '@angular/common';
@@ -11,12 +17,17 @@ import { KeyboardNavigationService } from '../../../core/services/keyboard-navig
   imports: [CommonModule, KeyboardNavigableDirective, CurrencyPipe],
   templateUrl: './articulos-table.component.html',
   styleUrl: './articulos-table.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class: 'flex flex-col h-full',
+  },
 })
 export class ArticulosTableComponent {
   // --- INPUTS (Datos que recibe del padre) ---
   @Input() page: Page<any> | null = null; // Ahora puede recibir cualquier tipo de objeto
   @Input() columns: TableColumn[] = []; // Recibe la configuración de las columnas a mostrar
   @Input() activeIndex: number = -1;
+  @Input() showPagination: boolean = true;
 
   // --- OUTPUTS (Eventos que emite hacia el padre) ---
   @Output() articleSelected = new EventEmitter<any>();

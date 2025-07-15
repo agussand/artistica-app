@@ -1,8 +1,9 @@
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { UserDetails } from '../../core/models/auth.model';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ConfirmationService } from '../../core/services/confirmation/confirmation.service';
+import { AuthService } from '../../core/services/auth/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -19,15 +20,15 @@ export class HeaderComponent {
   @Input() showBackButton: boolean = false;
 
   private confirmationService = inject(ConfirmationService);
-
-  // Con @Output, el componente puede notificar al padre sobre eventos.
-  @Output() logoutClicked = new EventEmitter<void>();
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
   onLogout(): void {
     this.confirmationService.confirm(
       '¿Está seguro de que desea cerrar sesión?',
       () => {
-        this.logoutClicked.emit();
+        this.authService.logout();
+        this.router.navigate(['/login']);
       }
     );
     // Cuando se hace clic en el botón, emitimos el evento.

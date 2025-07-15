@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   Inject,
@@ -12,6 +13,8 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ArticulosTableComponent } from '../../../components/articulos/articulos-table/articulos-table.component';
 import { HeaderComponent } from '../../../shared/header/header.component';
 import {
+  combineLatest,
+  debounceTime,
   delay,
   finalize,
   merge,
@@ -37,6 +40,7 @@ import { NotificationService } from '../../../core/services/notification/notific
 import { ShortcutsFooterComponent } from '../../../shared/shortcuts-footer/shortcuts-footer.component';
 import { ArticuloFormComponent } from '../articulo-form/articulo-form.component';
 import { ConfirmationService } from '../../../core/services/confirmation/confirmation.service';
+import { ArticleSearchFeatureComponent } from '../../../components/articulos/article-search-feature/article-search-feature.component';
 
 @Component({
   selector: 'app-articulos-admin-container',
@@ -44,53 +48,16 @@ import { ConfirmationService } from '../../../core/services/confirmation/confirm
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    ArticulosTableComponent,
     HeaderComponent,
     ArticuloFormComponent,
     ShortcutsFooterComponent,
+    ArticleSearchFeatureComponent,
   ],
   templateUrl: './articulos-admin-container.component.html',
   styleUrl: './articulos-admin-container.component.css',
 })
 export class ArticulosAdminContainerComponent implements OnInit, OnDestroy {
-  public adminViewShortcuts: Shortcut[] = [
-    { key: '↑↓', description: 'Navegar' },
-    { key: 'F2', description: 'Buscar' },
-    { key: 'F4', description: 'Editar' },
-    { key: 'Supr', description: 'Eliminar' },
-    { key: 'Alt+N', description: 'Nuevo' },
-    { key: 'Esc', description: 'Volver al inicio' },
-  ];
-
-  private articuloService = inject(ArticuloService);
-  private authService = inject(AuthService);
-  private router = inject(Router);
-  public keyboardNav = inject(KeyboardNavigationService);
-
-  private confirmationService = inject(ConfirmationService);
-
-  public isSaving = false; // Nueva propiedad para el estado de carga
-  private notificationService = inject(NotificationService);
-
-  @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
-  private destroy$ = new Subject<void>();
-
-  // La lógica de búsqueda y paginación es idéntica a la del otro contenedor.
-  public searchControl = new FormControl('');
-  private pageSubject = new Subject<number>();
-  public articulosPage$!: Observable<Page<Articulo>>;
-  public currentPageNumber = 0;
-
-  // Nuevas propiedades para manejar el estado del modal
-  public isModalOpen = false;
-  public editingArticle: Articulo | null = null;
-  public currentUser: UserDetails | null = null;
-  // Renombramos el trigger para mayor claridad
-  private userSearchTrigger = new Subject<void>();
-  // Creamos un nuevo trigger para refrescar los datos sin perder la selección
-  private refreshDataTrigger = new Subject<void>();
-
-  // ¡AQUÍ ESTÁ LA CLAVE! Definimos una nueva configuración de columnas para el admin.
+  // Configuración para los componentes hijos
   public adminTableColumns: TableColumn[] = [
     { field: 'id', header: 'ID' },
     { field: 'descripcion', header: 'Descripción' },
@@ -98,103 +65,84 @@ export class ArticulosAdminContainerComponent implements OnInit, OnDestroy {
     { field: 'precioVenta', header: 'P. Venta', pipe: 'currency' },
     { field: 'tasiva', header: 'IVA %' },
     { field: 'status', header: 'Estado' },
-    // Añadimos una columna especial para los botones de acción.
     { field: 'actions', header: 'Acciones' },
   ];
 
-  constructor() {}
+  public adminViewShortcuts: Shortcut[] = [
+    { key: 'F2', description: 'Buscar' },
+    { key: 'F4', description: 'Editar' },
+    { key: 'Supr', description: 'Eliminar' },
+    { key: 'Alt+N', description: 'Nuevo' },
+  ];
+
+  @ViewChild(ArticleSearchFeatureComponent)
+  private searchFeature!: ArticleSearchFeatureComponent;
+
+  // Estado de la página
+  public currentUser: UserDetails | null = null;
+  public isModalOpen = false;
+  public editingArticle: Articulo | null = null;
+  public isSaving = false;
+  private destroy$ = new Subject<void>();
+
+  // Inyección de servicios
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private articuloService = inject(ArticuloService);
+  private notificationService = inject(NotificationService);
+  private confirmationService = inject(ConfirmationService);
+  private keyboardNav = inject(KeyboardNavigationService);
 
   ngOnInit(): void {
     this.currentUser = this.authService.getUserDetails();
 
-    this.keyboardNav.activeIndex = -1;
-    this.keyboardNav.resume();
-
-    const search$ = this.userSearchTrigger.pipe(
-      tap(() => (this.keyboardNav.activeIndex = -1))
-    );
-
-    const refresh$ = this.refreshDataTrigger.pipe();
-
-    const dataTrigger$ = merge(search$, refresh$).pipe(startWith(null));
-
-    this.articulosPage$ = dataTrigger$.pipe(
-      tap(() => this.pageSubject.next(0)),
-      switchMap(() => this.pageSubject.pipe(startWith(0))),
-      switchMap((page) => {
-        this.currentPageNumber = page;
-        const searchTerm = this.searchControl.value || '';
-        // Podríamos llamar a un método diferente si el admin necesitara ver más datos.
-        return this.articuloService.getAdminArticulos(searchTerm, page, 10);
-      })
-    );
-
     this.keyboardNav.onShortcut$
       .pipe(takeUntil(this.destroy$))
-      .subscribe((shortcut) => this.handleShortcut(shortcut));
+      .subscribe((shortcut) => {
+        if (shortcut.altKey && shortcut.key === 'n') {
+          this.handleNewArticle();
+        }
+      });
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
-
-  // --- Métodos que manejan la lógica y los eventos de la tabla ---
-
-  triggerSearch(event?: Event): void {
-    if (event) event.preventDefault();
-    // Ahora llamamos al trigger específico del usuario.
-    this.userSearchTrigger.next();
-    this.searchInput.nativeElement.blur();
-  }
-
-  handlePageChange(direction: 'next' | 'previous'): void {
-    if (direction === 'next') {
-      this.pageSubject.next(this.currentPageNumber + 1);
-    } else if (this.currentPageNumber > 0) {
-      this.pageSubject.next(this.currentPageNumber - 1);
-    }
-  }
-
-  // --- NUEVOS MÉTODOS PARA LAS ACCIONES DEL ADMIN ---
+  // --- MÉTODOS QUE SE QUEDAN (LÓGICA DE NEGOCIO) ---
 
   handleNewArticle(): void {
-    this.keyboardNav.pause();
-    this.editingArticle = null; // Nos aseguramos de que no hay un artículo para editar
-    this.isModalOpen = true; // Abrimos el modal
+    this.editingArticle = null;
+    this.isModalOpen = true;
   }
 
   handleEdit(articulo: Articulo): void {
-    this.keyboardNav.pause();
-    this.editingArticle = articulo; // Pasamos el artículo seleccionado
-    this.isModalOpen = true; // Abrimos el modal
+    this.editingArticle = articulo;
+    this.isModalOpen = true;
   }
 
   handleDelete(articulo: Articulo): void {
     const message = `¿Está seguro de que desea eliminar el artículo "${articulo.descripcion}"?`;
 
-    // 3. Llamamos al servicio de confirmación.
     this.confirmationService.confirm(message, () => {
-      // Esta es la función que se ejecuta si el usuario confirma.
       this.articuloService.deleteArticulo(articulo.id).subscribe({
         next: (articulo) => {
           this.notificationService.showSuccess(
             `Artículo ${articulo.descripcion} fué eliminado correctamente`
           );
-          this.refreshDataTrigger.next(); // Refrescamos la tabla para ver el cambio.
+          this.searchFeature.refreshData();
+          // En un futuro, aquí podríamos llamar a un método para refrescar el componente de búsqueda.
         },
         error: (err) => {
           this.notificationService.showError('Error al eliminar el artículo.');
-          console.error(err);
         },
       });
     });
   }
 
   handleCloseModal(): void {
-    this.isModalOpen = false; // Cerramos el modal
-    this.editingArticle = null; // Limpiamos el estado
-    this.keyboardNav.resume(); // Reanudamos la navegación
+    this.isModalOpen = false;
+    this.editingArticle = null;
   }
 
   handleFormSubmit(articulo: Articulo): void {
@@ -213,52 +161,19 @@ export class ArticulosAdminContainerComponent implements OnInit, OnDestroy {
     saveOperation$.pipe(finalize(() => (this.isSaving = false))).subscribe({
       next: () => {
         const message = this.editingArticle
-          ? 'Artículo actualizado correctamente.'
-          : 'Artículo creado con éxito.';
+          ? 'Artículo actualizado.'
+          : 'Artículo creado.';
         this.notificationService.showSuccess(message);
         this.handleCloseModal();
-        this.refreshDataTrigger.next(); // Refrescamos la tabla
+        this.searchFeature.refreshData();
+        // Aquí podríamos llamar a un método para refrescar el componente de búsqueda.
       },
       error: (err) => {
-        console.error('Error al guardar:', err);
         this.notificationService.showError(
           'Ocurrió un error al guardar el artículo.'
         );
       },
     });
-  }
-
-  private handleShortcut(shortcut: ShortcutEvent): void {
-    const activeIndex = this.keyboardNav.activeIndex;
-
-    // Atajo F2: Siempre enfoca la búsqueda.
-    if (shortcut.key === 'f2') {
-      this.searchInput.nativeElement.focus();
-      this.searchInput.nativeElement.select();
-    }
-
-    // Atajo Shift + n: Crear un nuevo modal para un nuevo Articulo
-    if (shortcut.altKey && shortcut.key === 'n') {
-      this.handleNewArticle();
-    }
-
-    // Atajo F4: Ahora significa "Editar" en este contexto.
-    if (shortcut.key === 'f4' && activeIndex !== -1) {
-      // Necesitamos obtener la página actual de alguna manera.
-      // Esta es una forma simple, pero en una app real se usaría un gestor de estado.
-      this.articulosPage$.pipe(take(1)).subscribe((page) => {
-        const activeArticle = page.content[activeIndex];
-        this.handleEdit(activeArticle);
-      });
-    }
-
-    // Atajo Delete: Para eliminar el artículo seleccionado.
-    if (shortcut.key === 'delete' && activeIndex !== -1) {
-      this.articulosPage$.pipe(take(1)).subscribe((page) => {
-        const activeArticle = page.content[activeIndex];
-        this.handleDelete(activeArticle);
-      });
-    }
   }
 
   logout(): void {

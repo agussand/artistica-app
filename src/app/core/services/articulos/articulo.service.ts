@@ -3,7 +3,7 @@ import { environment } from '../../../../environments/environment.dev';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Page } from '../../../shared/models/page.model';
-import { Articulo, ArticuloDTO } from '../../models/articulo.model';
+import { Articulo } from '../../models/articulo.model';
 
 @Injectable({
   providedIn: 'root',
@@ -23,7 +23,7 @@ export class ArticuloService {
     page = 0,
     size = 10,
     sort = 'id,asc'
-  ): Observable<Page<ArticuloDTO>> {
+  ): Observable<Page<Articulo>> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString())
@@ -33,7 +33,7 @@ export class ArticuloService {
       params = params.set('searchTerm', searchTerm);
     }
 
-    return this.http.get<Page<ArticuloDTO>>(this.apiUrl, { params });
+    return this.http.get<Page<Articulo>>(this.apiUrl, { params });
   }
 
   /**

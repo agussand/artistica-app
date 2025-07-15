@@ -7,84 +7,47 @@
   >
   </app-header>
 
-  <main
-    class="max-w-7xl mx-auto w-full flex flex-col flex-grow p-4 sm:p-6 lg:p-8 min-h-0"
-  >
-    <div class="mb-4 flex justify-between items-center flex-shrink-0 gap-4">
-      <!-- El formulario de búsqueda ahora ocupa el espacio disponible -->
-      <form
-        (ngSubmit)="triggerSearch($event)"
-        (keydown.enter)="triggerSearch($event)"
-        (submit)="triggerSearch($event)"
-        class="flex-grow"
-      >
-        <div class="flex gap-2">
-          <input
-            #searchInput
-            type="text"
-            [formControl]="searchControl"
-            placeholder="Buscar por ID, descripción o código de barras y presiona Enter..."
-            class="w-full px-4 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button
-            type="submit"
-            class="px-4 py-2 text-white font-semibold bg-blue-600 rounded-md hover:bg-blue-700"
-          >
-            Buscar
-          </button>
-        </div>
-      </form>
-
-      <!-- El botón "Nuevo" ahora está a la derecha, alineado con la barra. -->
-      <button
-        (click)="handleNewArticle()"
-        type="button"
-        class="px-4 py-2 text-white font-semibold bg-green-600 rounded-md hover:bg-green-700 flex items-center gap-2 self-center flex-shrink-0"
-      >
-        <svg
-          xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          class="w-5 h-5"
+  <main class="flex-grow p-4 sm:p-6 lg:p-8 min-h-0 overflow-y-auto">
+    <div class="max-w-7xl mx-auto w-full h-full flex flex-col">
+      <div class="mb-4 flex justify-end">
+        <button
+          (click)="handleNewArticle()"
+          type="button"
+          class="px-4 py-2 text-white font-semibold bg-green-600 rounded-md hover:bg-green-700 flex items-center gap-2"
         >
-          <path
-            d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z"
-          />
-        </svg>
-        Nuevo
-      </button>
-    </div>
-    <!-- Botón para crear un nuevo artículo -->
-
-    <!-- Usamos la MISMA tabla, pero le pasamos la nueva configuración de columnas -->
-    <!-- y escuchamos los nuevos eventos de acción. -->
-    <app-articulos-table
-      *ngIf="articulosPage$ | async as page; else loading"
-      class="flex-grow min-h-0"
-      [page]="page"
-      [columns]="adminTableColumns"
-      [activeIndex]="keyboardNav.activeIndex"
-      (editClicked)="handleEdit($event)"
-      (deleteClicked)="handleDelete($event)"
-      (pageChange)="handlePageChange($event)"
-    >
-    </app-articulos-table>
-
-    <ng-template #loading>
-      <div class="flex-grow flex items-center justify-center text-gray-500">
-        Cargando...
+          <svg
+            xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            class="w-5 h-5"
+          >
+            <path
+              d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z"
+            />
+          </svg>
+          Nuevo Artículo
+        </button>
       </div>
-    </ng-template>
-  </main>
-  <app-shortcuts-footer [shortcuts]="adminViewShortcuts"></app-shortcuts-footer>
 
-  <!-- El Modal del Formulario -->
-  <!-- Se renderiza solo si isModalOpen es true -->
+      <!-- Usamos nuestro nuevo componente reutilizable -->
+      <app-article-search-feature
+        class="flex-grow min-h-0"
+        [searchFunction]="'admin'"
+        [tableColumns]="adminTableColumns"
+        [shortcuts]="adminViewShortcuts"
+        (editClicked)="handleEdit($event)"
+        (deleteClicked)="handleDelete($event)"
+      >
+      </app-article-search-feature>
+    </div>
+  </main>
+
+  <app-shortcuts-footer [shortcuts]="adminViewShortcuts"></app-shortcuts-footer>
   <app-articulo-form
     *ngIf="isModalOpen"
     [article]="editingArticle"
-    (formSubmit)="handleFormSubmit($event)"
     [isSaving]="isSaving"
+    (formSubmit)="handleFormSubmit($event)"
     (closeModal)="handleCloseModal()"
   >
   </app-articulo-form>

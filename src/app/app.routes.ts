@@ -3,10 +3,10 @@ import { authGuard } from './core/guards/auth.guard';
 import { loginGuard } from './core/guards/login.guard';
 import { ArticulosAdminContainerComponent } from './admin/articulos/articulos-admin-container/articulos-admin-container.component';
 import { adminGuard } from './core/guards/admin.guard';
-import { PresupuestoComponent } from './components/presupuesto/presupuesto.component';
 import { ArticulosContainerComponent } from './components/articulos/articulos-container/articulos-container.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { LoginComponent } from './components/login/login.component';
+import { PresupuestoContainerComponent } from './components/presupuestos/presupuesto-container/presupuesto-container.component';
 
 export const routes: Routes = [
   {
@@ -26,7 +26,7 @@ export const routes: Routes = [
   },
   {
     path: 'presupuesto',
-    component: PresupuestoComponent,
+    component: PresupuestoContainerComponent,
     canActivate: [authGuard],
   },
   {

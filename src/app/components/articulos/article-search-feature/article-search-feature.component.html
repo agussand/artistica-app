@@ -1,0 +1,42 @@
+<div class="flex flex-col h-full">
+  <!-- HIJO 1: Formulario (no crece) -->
+  <form (ngSubmit)="triggerSearch($event)" class="mb-4 flex-shrink-0">
+    <div class="flex gap-2">
+      <input
+        #searchInput
+        type="text"
+        [formControl]="searchControl"
+        (keydown.enter)="triggerSearch($event)"
+        placeholder="Buscar por ID, descripción o código de barras y presiona Enter..."
+        class="w-full px-4 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <button
+        type="submit"
+        class="px-4 py-2 text-white font-semibold bg-blue-600 rounded-md hover:bg-blue-700"
+      >
+        Buscar
+      </button>
+    </div>
+  </form>
+
+  <!-- HIJO 2: Tabla (crece para llenar el espacio restante) -->
+  <app-articulos-table
+    *ngIf="articulosPage$ | async as page; else loading"
+    class="flex-grow min-h-0"
+    [page]="page"
+    [columns]="tableColumns"
+    [activeIndex]="keyboardNav.activeIndex"
+    (articleSelected)="articleSelected.emit($event)"
+    (editClicked)="editClicked.emit($event)"
+    (deleteClicked)="deleteClicked.emit($event)"
+    (pageChange)="handlePageChange($event)"
+    [showPagination]="showPagination"
+  >
+  </app-articulos-table>
+
+  <ng-template #loading>
+    <div class="flex-grow flex items-center justify-center text-gray-500">
+      Cargando...
+    </div>
+  </ng-template>
+</div>

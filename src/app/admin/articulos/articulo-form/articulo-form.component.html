@@ -78,16 +78,17 @@
               <span class="text-gray-500 sm:text-sm">$</span>
             </div>
             <input
+              #precioListaInput
               type="text"
               id="precioLista"
               formControlName="precioLista"
               mask="separator.2"
               thousandSeparator="."
               decimalMarker=","
-              class="block w-full rounded-md border-gray-300 pl-7 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
+              class="block w-full rounded-md border-gray-300 pl-7 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <div class="text-red-600 text-xs mt-1 h-4">
+          <div class="text-red-600 font-semibold text-xs mt-1 h-4">
             <span
               *ngIf="f['precioLista'].touched && f['precioLista'].errors?.['required']"
               >El precio es requerido.</span
@@ -118,7 +119,7 @@
               mask="separator.2"
               thousandSeparator="."
               decimalMarker=","
-              class="block w-full rounded-md border-gray-300 pl-7 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
+              class="block w-full rounded-md border-gray-300 pl-7 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div class="text-red-600 text-xs mt-1 h-4">
