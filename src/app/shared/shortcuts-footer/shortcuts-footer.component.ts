@@ -1,11 +1,11 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, Input } from '@angular/core';
 import { Shortcut } from '../models/shortcut.model';
 
 @Component({
   selector: 'app-shortcuts-footer',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './shortcuts-footer.component.html',
   styleUrl: './shortcuts-footer.component.css',
 })

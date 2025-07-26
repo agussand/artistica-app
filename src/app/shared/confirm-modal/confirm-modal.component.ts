@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { ConfirmationState } from '../models/confirmation.model';
 import { Subscription } from 'rxjs';
@@ -7,7 +7,7 @@ import { ConfirmationService } from '../../core/services/confirmation/confirmati
 @Component({
   selector: 'app-confirm-modal',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './confirm-modal.component.html',
   styleUrl: './confirm-modal.component.css',
 })

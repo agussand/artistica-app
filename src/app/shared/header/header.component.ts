@@ -1,6 +1,6 @@
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { UserDetails } from '../../core/models/auth.model';
-import { CommonModule } from '@angular/common';
+
 import { Router, RouterLink } from '@angular/router';
 import { ConfirmationService } from '../../core/services/confirmation/confirmation.service';
 import { AuthService } from '../../core/services/auth/auth.service';
@@ -8,7 +8,7 @@ import { AuthService } from '../../core/services/auth/auth.service';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [RouterLink],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css',
 })

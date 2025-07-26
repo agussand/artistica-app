@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   AfterViewInit,
   Component,
@@ -46,13 +46,12 @@ import { ArticleSearchFeatureComponent } from '../../../components/articulos/art
   selector: 'app-articulos-admin-container',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     HeaderComponent,
     ArticuloFormComponent,
     ShortcutsFooterComponent,
-    ArticleSearchFeatureComponent,
-  ],
+    ArticleSearchFeatureComponent
+],
   templateUrl: './articulos-admin-container.component.html',
   styleUrl: './articulos-admin-container.component.css',
 })

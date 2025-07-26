@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   AfterViewInit,
   Component,
@@ -26,7 +26,7 @@ import { NgxMaskDirective } from 'ngx-mask';
 @Component({
   selector: 'app-articulo-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgxMaskDirective],
+  imports: [ReactiveFormsModule, NgxMaskDirective],
   templateUrl: './articulo-form.component.html',
   styleUrl: './articulo-form.component.css',
 })

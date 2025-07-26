@@ -1,105 +1,102 @@
 <div
   class="fixed inset-0 bg-black bg-opacity-60 z-40 flex items-center justify-center animate-fade-in"
->
+  >
   <!-- Usamos un ng-container para la lógica condicional sin añadir un div extra -->
-  <ng-container *ngIf="!selectedArticleForQuantity; else quantityStep">
+  @if (!selectedArticleForQuantity) {
     <!-- VISTA 1: BÚSQUEDA DE ARTÍCULOS -->
     <div
       class="bg-gray-100 rounded-lg shadow-xl w-full max-w-4xl p-6 m-4 animate-scale-up flex flex-col h-[90vh]"
-    >
+      >
       <div
         class="flex justify-between items-center pb-3 mb-4 border-b border-gray-200 flex-shrink-0"
-      >
+        >
         <h3 class="text-2xl font-bold text-gray-800">Buscar Artículo</h3>
         <button
           (click)="closeModal.emit()"
           class="text-gray-400 rounded-full p-1 hover:bg-gray-200 hover:text-gray-800"
-        >
+          >
           <svg
             xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)"
             viewBox="0 0 20 20"
             fill="currentColor"
             class="w-5 h-5"
-          >
+            >
             <path
               d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
-            />
-          </svg>
-        </button>
-      </div>
-      <app-article-search-feature
-        class="flex-grow min-h-0"
-        [searchFunction]="'user'"
-        [tableColumns]="modalTableColumns"
-        [shortcuts]="modalShortcuts"
-        [showPagination]="false"
-        (articleSelected)="onArticleSelected($event)"
-      >
-      </app-article-search-feature>
-
-      <div
-        class="flex items-center flex-wrap justify-center gap-x-16 text-sm text-gray-600 pt-8"
-      >
-        <!-- Iteramos sobre el array de atajos que recibimos del padre -->
-        <div
-          *ngFor="let shortcut of modalShortcuts"
-          class="flex items-center space-x-2"
-        >
-          <kbd
-            class="font-mono font-semibold px-2 py-1.5 bg-gray-200 text-gray-800 rounded-md border border-b-2 border-gray-300 text-xs"
+              />
+            </svg>
+          </button>
+        </div>
+        <app-article-search-feature
+          class="flex-grow min-h-0"
+          [searchFunction]="'user'"
+          [tableColumns]="modalTableColumns"
+          [shortcuts]="modalShortcuts"
+          [showPagination]="false"
+          (articleSelected)="onArticleSelected($event)"
           >
-            {{ shortcut.key }}
-          </kbd>
-          <span>{{ shortcut.description }}</span>
+        </app-article-search-feature>
+        <div
+          class="flex items-center flex-wrap justify-center gap-x-16 text-sm text-gray-600 pt-8"
+          >
+          <!-- Iteramos sobre el array de atajos que recibimos del padre -->
+          @for (shortcut of modalShortcuts; track shortcut) {
+            <div
+              class="flex items-center space-x-2"
+              >
+              <kbd
+                class="font-mono font-semibold px-2 py-1.5 bg-gray-200 text-gray-800 rounded-md border border-b-2 border-gray-300 text-xs"
+                >
+                {{ shortcut.key }}
+              </kbd>
+              <span>{{ shortcut.description }}</span>
+            </div>
+          }
         </div>
       </div>
-    </div>
-  </ng-container>
-
-  <!-- VISTA 2: INGRESAR CANTIDAD -->
-  <ng-template #quantityStep>
-    <div
-      class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 m-4 animate-scale-up"
-    >
-      <h3 class="text-lg font-semibold text-gray-900">Ingresar Cantidad</h3>
-      <p class="mt-2 text-sm text-gray-600">
-        Artículo:
-        <span class="font-bold">{{
-          selectedArticleForQuantity?.descripcion
-        }}</span>
-      </p>
-
-      <div class="mt-4">
-        <label for="quantity" class="block text-sm font-medium text-gray-700"
-          >Cantidad</label
+    } @else {
+      <div
+        class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 m-4 animate-scale-up"
         >
-        <input
-          #quantityInput
-          type="number"
-          id="quantity"
-          [formControl]="quantityControl"
-          (keydown.enter)="onConfirmQuantity()"
-          class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+        <h3 class="text-lg font-semibold text-gray-900">Ingresar Cantidad</h3>
+        <p class="mt-2 text-sm text-gray-600">
+          Artículo:
+          <span class="font-bold">{{
+            selectedArticleForQuantity?.descripcion
+          }}</span>
+        </p>
+        <div class="mt-4">
+          <label for="quantity" class="block text-sm font-medium text-gray-700"
+            >Cantidad</label
+            >
+            <input
+              #quantityInput
+              type="number"
+              id="quantity"
+              [formControl]="quantityControl"
+              (keydown.enter)="onConfirmQuantity()"
+              class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div class="mt-6 flex justify-end gap-3">
+              <button
+                (click)="cancelQuantityStep()"
+                type="button"
+                class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 font-semibold"
+                >
+                Volver
+              </button>
+              <button
+                (click)="onConfirmQuantity()"
+                [disabled]="quantityControl.invalid"
+                type="button"
+                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-semibold disabled:bg-gray-400"
+                >
+                Añadir al Presupuesto
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- VISTA 2: INGRESAR CANTIDAD -->
       </div>
-
-      <div class="mt-6 flex justify-end gap-3">
-        <button
-          (click)="cancelQuantityStep()"
-          type="button"
-          class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 font-semibold"
-        >
-          Volver
-        </button>
-        <button
-          (click)="onConfirmQuantity()"
-          [disabled]="quantityControl.invalid"
-          type="button"
-          class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-semibold disabled:bg-gray-400"
-        >
-          Añadir al Presupuesto
-        </button>
-      </div>
-    </div>
-  </ng-template>
-</div>

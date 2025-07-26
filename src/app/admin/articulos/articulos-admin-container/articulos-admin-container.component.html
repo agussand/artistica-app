@@ -4,7 +4,7 @@
     [user]="currentUser"
     [showBackButton]="true"
     (logoutClicked)="logout()"
-  >
+    >
   </app-header>
 
   <main class="flex-grow p-4 sm:p-6 lg:p-8 min-h-0 overflow-y-auto">
@@ -14,41 +14,42 @@
           (click)="handleNewArticle()"
           type="button"
           class="px-4 py-2 text-white font-semibold bg-green-600 rounded-md hover:bg-green-700 flex items-center gap-2"
-        >
+          >
           <svg
             xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)"
             viewBox="0 0 20 20"
             fill="currentColor"
             class="w-5 h-5"
-          >
+            >
             <path
               d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z"
-            />
-          </svg>
-          Nuevo Artículo
-        </button>
+              />
+            </svg>
+            Nuevo Artículo
+          </button>
+        </div>
+
+        <!-- Usamos nuestro nuevo componente reutilizable -->
+        <app-article-search-feature
+          class="flex-grow min-h-0"
+          [searchFunction]="'admin'"
+          [tableColumns]="adminTableColumns"
+          [shortcuts]="adminViewShortcuts"
+          (editClicked)="handleEdit($event)"
+          (deleteClicked)="handleDelete($event)"
+          >
+        </app-article-search-feature>
       </div>
+    </main>
 
-      <!-- Usamos nuestro nuevo componente reutilizable -->
-      <app-article-search-feature
-        class="flex-grow min-h-0"
-        [searchFunction]="'admin'"
-        [tableColumns]="adminTableColumns"
-        [shortcuts]="adminViewShortcuts"
-        (editClicked)="handleEdit($event)"
-        (deleteClicked)="handleDelete($event)"
-      >
-      </app-article-search-feature>
-    </div>
-  </main>
-
-  <app-shortcuts-footer [shortcuts]="adminViewShortcuts"></app-shortcuts-footer>
-  <app-articulo-form
-    *ngIf="isModalOpen"
-    [article]="editingArticle"
-    [isSaving]="isSaving"
-    (formSubmit)="handleFormSubmit($event)"
-    (closeModal)="handleCloseModal()"
-  >
-  </app-articulo-form>
-</div>
+    <app-shortcuts-footer [shortcuts]="adminViewShortcuts"></app-shortcuts-footer>
+    @if (isModalOpen) {
+      <app-articulo-form
+        [article]="editingArticle"
+        [isSaving]="isSaving"
+        (formSubmit)="handleFormSubmit($event)"
+        (closeModal)="handleCloseModal()"
+        >
+      </app-articulo-form>
+    }
+  </div>

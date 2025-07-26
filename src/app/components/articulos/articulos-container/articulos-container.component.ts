@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject, OnInit } from '@angular/core';
 import { HeaderComponent } from '../../../shared/header/header.component';
 import { TableColumn } from '../../../shared/models/table-column.model';
@@ -16,11 +16,10 @@ import { ArticleSearchFeatureComponent } from '../article-search-feature/article
   selector: 'app-articulos-container',
   standalone: true,
   imports: [
-    CommonModule,
     HeaderComponent,
     ShortcutsFooterComponent,
-    ArticleSearchFeatureComponent,
-  ],
+    ArticleSearchFeatureComponent
+],
   templateUrl: './articulos-container.component.html',
   styleUrl: './articulos-container.component.css',
 })

@@ -1,6 +1,6 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommonModule, NgForOf } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { KeyboardNavigableDirective } from '../../shared/directives/keyboard-navigable/keyboard-navigable.directive';
 import { KeyboardNavigationService } from '../../core/services/keyboard-navigation/keyboard-navigation.service';
 import { UserDetails } from '../../core/models/auth.model';
@@ -15,11 +15,10 @@ import { MenuItem } from '../../shared/models/menu.model';
   standalone: true,
   imports: [
     CommonModule,
-    NgForOf,
     KeyboardNavigableDirective,
     HeaderComponent,
-    ShortcutsFooterComponent,
-  ],
+    ShortcutsFooterComponent
+],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })

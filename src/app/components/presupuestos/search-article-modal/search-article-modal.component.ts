@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   AfterViewInit,
   Component,
@@ -19,11 +19,10 @@ import { ShortcutsFooterComponent } from '../../../shared/shortcuts-footer/short
   selector: 'app-search-article-modal',
   standalone: true,
   imports: [
-    CommonModule,
     ArticleSearchFeatureComponent,
     ReactiveFormsModule,
-    ShortcutsFooterComponent,
-  ],
+    ShortcutsFooterComponent
+],
   templateUrl: './search-article-modal.component.html',
   styleUrl: './search-article-modal.component.css',
 })
