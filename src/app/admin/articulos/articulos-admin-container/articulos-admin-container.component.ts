@@ -1,33 +1,9 @@
+import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
 
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Inject,
-  inject,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { ArticulosTableComponent } from '../../../components/articulos/articulos-table/articulos-table.component';
 import { HeaderComponent } from '../../../shared/header/header.component';
-import {
-  combineLatest,
-  debounceTime,
-  delay,
-  finalize,
-  merge,
-  Observable,
-  of,
-  startWith,
-  Subject,
-  switchMap,
-  take,
-  takeUntil,
-  tap,
-} from 'rxjs';
-import { Page } from '../../../shared/models/page.model';
+import { finalize, Observable, Subject, takeUntil } from 'rxjs';
+
 import { Articulo } from '../../../core/models/articulo.model';
 import { UserDetails } from '../../../core/models/auth.model';
 import { TableColumn } from '../../../shared/models/table-column.model';
@@ -50,8 +26,8 @@ import { ArticleSearchFeatureComponent } from '../../../components/articulos/art
     HeaderComponent,
     ArticuloFormComponent,
     ShortcutsFooterComponent,
-    ArticleSearchFeatureComponent
-],
+    ArticleSearchFeatureComponent,
+  ],
   templateUrl: './articulos-admin-container.component.html',
   styleUrl: './articulos-admin-container.component.css',
 })
