@@ -1,5 +1,5 @@
 import { ElementRef, inject, Injectable, OnDestroy } from '@angular/core';
-import { filter, fromEvent, Subject, Subscription } from 'rxjs';
+import { buffer, filter, fromEvent, Subject, Subscription } from 'rxjs';
 import { ShortcutEvent } from '../../../shared/models/shortcut.model';
 import { Router } from '@angular/router';
 
@@ -25,6 +25,7 @@ export class KeyboardNavigationService implements OnDestroy {
   private readonly enterSubject = new Subject<ElementRef>();
   private readonly escapeSubject = new Subject<void>();
   private readonly shortcutSubject = new Subject<ShortcutEvent>();
+  private barcodeSubject = new Subject<string>();
   private keyboardSubscription: Subscription;
 
   public pause(): void {
@@ -33,6 +34,35 @@ export class KeyboardNavigationService implements OnDestroy {
   public resume(): void {
     this.isPaused = false;
   }
+
+  /**
+   * Almacena temporalmente los caracteres recibidos en una ráfaga rápida,
+   * que se sospecha provienen de un escáner.
+   * @private
+   */
+  private barcodeBuffer: string[] = [];
+
+  /**
+   * Marca de tiempo (en milisegundos) de la última pulsación de tecla detectada.
+   * Se usa para calcular el tiempo entre teclas.
+   * @private
+   */
+  private lastKeystrokeTime = 0;
+
+  /**
+   * Tiempo máximo en milisegundos que puede pasar entre dos pulsaciones de tecla
+   * para que se consideren parte del mismo escaneo de código de barras. Si el tiempo
+   * es mayor, se asume que es una escritura manual y el buffer se reinicia.
+   * @private
+   * @readonly
+   */
+  private readonly BARCODE_TIMEOUT = 50;
+
+  /**
+   * Observable público al que los componentes pueden suscribirse para recibir
+   * los códigos de barra detectados.
+   */
+  public onBarcodeScan$ = this.barcodeSubject.asObservable();
 
   /**
    * Observable que emite cuando se presiona 'Enter' sobre un elemento activo.
@@ -94,11 +124,43 @@ export class KeyboardNavigationService implements OnDestroy {
    */
   private processKeyEvent(event: KeyboardEvent): void {
     const key = event.key.toLowerCase();
-
+    const now = Date.now();
+    const timeSinceLastKey = now - this.lastKeystrokeTime;
     // Si el servicio está pausado, no hacemos NADA, ni siquiera procesamos atajos.
     // El único evento que debe funcionar es el "Escape" del modal, que tiene su propio listener.
     if (this.isPaused) return;
 
+    // Comprobamos si la tecla es un carácter alfanumérico válido
+    const isBarcodeCharacter = /^[a-zA-Z0-9]$/.test(key);
+
+    // --- LÓGICA DE DETECCIÓN DE CÓDIGO DE BARRAS (CORREGIDA) ---
+
+    // Si la tecla es "Enter", finalizamos el posible escaneo.
+    if (key === 'enter') {
+      // Condición para ser un escaneo: Buffer con contenido Y tiempo corto desde la última tecla VÁLIDA.
+      if (
+        this.barcodeBuffer.length > 2 &&
+        timeSinceLastKey <= this.BARCODE_TIMEOUT
+      ) {
+        const barcode = this.barcodeBuffer.join('');
+        this.barcodeSubject.next(barcode);
+        this.barcodeBuffer = []; // Limpiamos DESPUÉS de emitir
+        event.preventDefault(); // Detenemos el Enter
+        return; // Escaneo manejado
+      } else {
+        // Si no es un escaneo válido (ej. Enter manual), limpiamos el buffer preventivamente.
+        this.barcodeBuffer = [];
+        // No hacemos 'return', dejamos que el Enter siga para navegación/shortcuts/submit.
+      }
+    } else if (isBarcodeCharacter) {
+      // Si pasó mucho tiempo desde la última tecla VÁLIDA, es una nueva secuencia.
+      if (timeSinceLastKey > this.BARCODE_TIMEOUT) {
+        this.barcodeBuffer = []; // Reseteamos ANTES de añadir
+      }
+      this.barcodeBuffer.push(key);
+      this.lastKeystrokeTime = now; // Actualizamos el tiempo SOLO para teclas válidas
+      // No hacemos 'return', dejamos que la tecla aparezca en el input si es el caso.
+    }
     // Solo actuamos sobre las combinaciones que nos interesan.
     const isShortcut =
       (event.altKey && key === 's') ||

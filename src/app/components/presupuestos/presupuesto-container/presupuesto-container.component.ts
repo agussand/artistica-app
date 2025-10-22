@@ -1,23 +1,22 @@
 import { CommonModule, CurrencyPipe } from '@angular/common';
-import {
-  AfterViewInit,
-  Component,
-  inject,
-  OnDestroy,
-  OnInit,
-} from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { HeaderComponent } from '../../../shared/header/header.component';
 import { ShortcutsFooterComponent } from '../../../shared/shortcuts-footer/shortcuts-footer.component';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { UserDetails } from '../../../core/models/auth.model';
-import { BudgetItem } from '../../../shared/models/budget.model';
 import { Shortcut } from '../../../shared/models/shortcut.model';
 import { Articulo } from '../../../core/models/articulo.model';
 import { KeyboardNavigationService } from '../../../core/services/keyboard-navigation/keyboard-navigation.service';
 import { Subject, takeUntil } from 'rxjs';
 import { SearchArticleModalComponent } from '../search-article-modal/search-article-modal.component';
 import { ConfirmationService } from '../../../core/services/confirmation/confirmation.service';
+import { PresupuestoCalculatorService } from '../../../core/services/presupuesto/presupuesto-calculator.service';
+import { PresupuestoItem } from '../../../shared/models/presupuesto.model';
+import { PdfService } from '../../../core/services/pdf-generator/pdf.service';
+import { ArticuloService } from '../../../core/services/articulos/articulo.service';
+import { NotificationService } from '../../../core/services/notification/notification.service';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-presupuesto-container',
@@ -28,13 +27,14 @@ import { ConfirmationService } from '../../../core/services/confirmation/confirm
     ShortcutsFooterComponent,
     CurrencyPipe,
     SearchArticleModalComponent,
+    ReactiveFormsModule,
   ],
   templateUrl: './presupuesto-container.component.html',
   styleUrl: './presupuesto-container.component.css',
 })
 export class PresupuestoContainerComponent implements OnInit, OnDestroy {
   // Estado del presupuesto
-  public budgetItems: BudgetItem[] = []; // La lista de artículos en el presupuesto
+  public presupuestoItems: PresupuestoItem[] = []; // La lista de artículos en el presupuesto
   public total: number = 0;
 
   public viewShortcuts: Shortcut[] = [
@@ -46,10 +46,21 @@ export class PresupuestoContainerComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private keyboardNav = inject(KeyboardNavigationService);
   private confirmationService = inject(ConfirmationService);
+  private calculator = inject(PresupuestoCalculatorService);
+  private pdfGenerator = inject(PdfService);
+  private articuloService = inject(ArticuloService);
   private destroy$ = new Subject<void>();
+  private notificationService = inject(NotificationService);
 
   public currentUser: UserDetails | null = null;
-  public isSearchModalOpen = false; // Estado para controlar el modal
+  public isSearchOrQuantityModalOpen = false; // Estado para controlar el modal
+  public preselectedArticleForModal: Articulo | null = null;
+
+  public quantityControl = new FormControl(1, [
+    Validators.required,
+    Validators.min(1),
+    Validators.max(100),
+  ]);
 
   ngOnInit(): void {
     this.currentUser = this.authService.getUserDetails();
@@ -58,11 +69,45 @@ export class PresupuestoContainerComponent implements OnInit, OnDestroy {
     this.keyboardNav.onShortcut$
       .pipe(takeUntil(this.destroy$))
       .subscribe((shortcut) => {
-        if (this.isSearchModalOpen) {
+        if (this.isSearchOrQuantityModalOpen) {
           return;
         }
         if (shortcut.key === 'f2') this.openAddArticleModal();
       });
+
+    // Suscripción a los escaneos de códigos de barra
+    this.keyboardNav.onBarcodeScan$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((barcode) => {
+        // **LA GUARDA CLAVE:** Solo procesamos el escaneo si ningún modal está abierto.
+        if (!this.isSearchOrQuantityModalOpen) {
+          this.handleBarcodeScan(barcode);
+        }
+      });
+  }
+
+  private handleBarcodeScan(barcode: string): void {
+    console.log('PresupuestoContainer: Código de barras recibido:', barcode);
+    this.articuloService.getArticulos(barcode).subscribe((articulos) => {
+      if (articulos.content.length === 1) {
+        console.log(
+          'PresupuestoContainer: Artículo encontrado por código de barras:',
+          articulos
+        );
+        // Artículo encontrado, preparamos para pedir la cantidad
+        this.preselectedArticleForModal = articulos.content[0];
+        this.openAddArticleModal();
+        this.keyboardNav.pause(); // Pausamos navegación/atajos de fondo
+      } else {
+        console.log(
+          'PresupuestoContainer: Artículo no encontrado por código de barras.'
+        );
+        // Artículo no encontrado, mostramos notificación
+        this.notificationService.showError(
+          `Artículo con código de barras "${barcode}" no encontrado.`
+        );
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -73,9 +118,12 @@ export class PresupuestoContainerComponent implements OnInit, OnDestroy {
   // --- Lógica del Presupuesto ---
 
   addArticle(data: { articulo: Articulo; cantidad: number }) {
-    this.closeAddArticleModal();
+    if (this.isSearchOrQuantityModalOpen) {
+      this.closeAddArticleModal();
+    }
+
     const { articulo, cantidad } = data;
-    const existingItem = this.budgetItems.find(
+    const existingItem = this.presupuestoItems.find(
       (item) => item.articulo.id === articulo.id
     );
 
@@ -86,42 +134,51 @@ export class PresupuestoContainerComponent implements OnInit, OnDestroy {
         existingItem.cantidad * existingItem.precioUnitario;
     } else {
       // Si es nuevo, lo añadimos a la lista.
-      this.budgetItems.push({
+      this.presupuestoItems.push({
         articulo: articulo,
         cantidad: cantidad,
         precioUnitario: articulo.precioVenta,
         subtotal: cantidad * articulo.precioVenta,
       });
     }
-    this.calculateTotal();
+    const { itemsActualizados, total } = this.calculator.recalcularPresupuesto(
+      this.presupuestoItems
+    );
+    this.presupuestoItems = itemsActualizados;
+    this.total = total;
   }
 
-  removeItem(itemToRemove: BudgetItem) {
+  removeItem(itemToRemove: PresupuestoItem) {
     const message = `¿Está seguro de que desea quitar "${itemToRemove.articulo.descripcion}" del presupuesto?`;
 
     // 3. Usamos el servicio para pedir confirmación.
     this.confirmationService.confirm(message, () => {
       // Esta función solo se ejecuta si el usuario hace clic en "Confirmar".
-      this.budgetItems = this.budgetItems.filter(
+      this.presupuestoItems = this.presupuestoItems.filter(
         (item) => item !== itemToRemove
       );
-      this.calculateTotal();
+      this.total = this.calculator.calcularTotal(this.presupuestoItems);
     });
   }
-
-  calculateTotal() {
-    this.total = this.budgetItems.reduce((sum, item) => sum + item.subtotal, 0);
-  }
-
   // --- Control del Modal ---
 
   openAddArticleModal() {
-    this.isSearchModalOpen = true;
+    this.isSearchOrQuantityModalOpen = true;
     this.keyboardNav.pause(); // Pausamos la navegación de la página principal
   }
 
   closeAddArticleModal() {
-    this.isSearchModalOpen = false;
+    this.isSearchOrQuantityModalOpen = false;
     this.keyboardNav.resume(); // Reanudamos la navegación
+  }
+
+  generatePdf() {
+    const { itemsActualizados, total } = this.calculator.recalcularPresupuesto(
+      this.presupuestoItems
+    );
+    this.presupuestoItems = itemsActualizados;
+    this.total = total;
+
+    this.pdfGenerator.generarPresupuestoPDF2(this.presupuestoItems, this.total);
   }
 }

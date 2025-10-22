@@ -1,4 +1,3 @@
-
 import { Component, inject, OnInit } from '@angular/core';
 import { HeaderComponent } from '../../../shared/header/header.component';
 import { TableColumn } from '../../../shared/models/table-column.model';
@@ -11,6 +10,7 @@ import { Shortcut } from '../../../shared/models/shortcut.model';
 import { ShortcutsFooterComponent } from '../../../shared/shortcuts-footer/shortcuts-footer.component';
 import { Articulo } from '../../../core/models/articulo.model';
 import { ArticleSearchFeatureComponent } from '../article-search-feature/article-search-feature.component';
+import { ArticuloDetailModalComponent } from '../../../shared/articulo-detail-modal/articulo-detail-modal.component';
 
 @Component({
   selector: 'app-articulos-container',
@@ -18,8 +18,9 @@ import { ArticleSearchFeatureComponent } from '../article-search-feature/article
   imports: [
     HeaderComponent,
     ShortcutsFooterComponent,
-    ArticleSearchFeatureComponent
-],
+    ArticleSearchFeatureComponent,
+    ArticuloDetailModalComponent,
+  ],
   templateUrl: './articulos-container.component.html',
   styleUrl: './articulos-container.component.css',
 })
@@ -42,6 +43,7 @@ export class ArticulosContainerComponent implements OnInit {
 
   public currentUser: UserDetails | null = null;
   public selectedArticle: Articulo | null = null;
+  public isDetailModalOpen = false;
 
   constructor() {}
 
@@ -49,15 +51,20 @@ export class ArticulosContainerComponent implements OnInit {
     this.currentUser = this.authService.getUserDetails();
   }
 
-  selectArticle(articulo: Articulo): void {
+  handleSingleResult(articulo: Articulo): void {
     this.selectedArticle = articulo;
-    console.log('Artículo seleccionado:', articulo);
-    // En un futuro, aquí podrías abrir un modal de edición:
-    // this.openEditModal(articulo);
+    this.isDetailModalOpen = true;
+  }
+
+  handleCloseDetailModal(): void {
+    this.isDetailModalOpen = false;
+    this.selectedArticle = null;
   }
 
   handleArticleSelection(articulo: Articulo): void {
     console.log('Artículo seleccionado en el contenedor:', articulo);
+    this.selectedArticle = articulo;
+    this.isDetailModalOpen = true;
     // Aquí iría la lógica de negocio, como abrir un modal.
   }
 

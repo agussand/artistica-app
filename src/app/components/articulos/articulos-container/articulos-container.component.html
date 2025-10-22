@@ -17,6 +17,7 @@
         [tableColumns]="tableColumns"
         [shortcuts]="viewShortcuts"
         (articleSelected)="handleArticleSelection($event)"
+        (singleResultFound)="handleSingleResult($event)"
       >
       </app-article-search-feature>
     </div>
@@ -24,3 +25,10 @@
 
   <app-shortcuts-footer [shortcuts]="viewShortcuts"></app-shortcuts-footer>
 </div>
+
+<app-articulo-detail-modal
+  [isOpen]="isDetailModalOpen"
+  [article]="selectedArticle || null"
+  (closeModal)="handleCloseDetailModal()"
+>
+</app-articulo-detail-modal>

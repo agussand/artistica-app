@@ -1,0 +1,54 @@
+<!-- Overlay del Modal -->
+<div
+  *ngIf="isOpen"
+  (click)="onClose()"
+  class="fixed inset-0 bg-black bg-opacity-60 z-40 flex items-center justify-center animate-fade-in"
+>
+  <!-- Contenido del Modal -->
+  <div
+    (click)="$event.stopPropagation()"
+    class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 m-4 animate-scale-up"
+  >
+    <!-- Encabezado del Modal -->
+    <div
+      class="flex justify-between items-center pb-3 border-b border-gray-200"
+    >
+      <h3 class="text-xl font-semibold text-gray-800">Detalles del Artículo</h3>
+      <button
+        (click)="onClose()"
+        class="text-gray-400 hover:text-gray-600 transition-colors rounded-full p-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          ></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Cuerpo del Modal -->
+    <div *ngIf="article" class="mt-4 space-y-4">
+      <div>
+        <p class="text-sm font-medium text-gray-500">Descripción</p>
+        <h4 class="text-lg font-medium text-gray-900">
+          {{ article.descripcion }}
+        </h4>
+      </div>
+
+      <div>
+        <p class="text-sm font-medium text-gray-500">Precio de Venta</p>
+        <p class="text-3xl font-bold text-blue-600">
+          {{ article.precioVenta | currency }}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

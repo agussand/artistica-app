@@ -45,9 +45,9 @@ export class ArticulosAdminContainerComponent implements OnInit, OnDestroy {
 
   public adminViewShortcuts: Shortcut[] = [
     { key: 'F2', description: 'Buscar' },
+    { key: 'Alt + N', description: 'Nuevo' },
     { key: 'F4', description: 'Editar' },
     { key: 'Supr', description: 'Eliminar' },
-    { key: 'Alt+N', description: 'Nuevo' },
   ];
 
   @ViewChild(ArticleSearchFeatureComponent)

@@ -1,32 +1,33 @@
-
 import {
-  AfterViewInit,
   Component,
   ElementRef,
   EventEmitter,
   HostListener,
+  Input,
+  OnInit,
   Output,
   ViewChild,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TableColumn } from '../../../shared/models/table-column.model';
-import { Shortcut, ShortcutEvent } from '../../../shared/models/shortcut.model';
+import { Shortcut } from '../../../shared/models/shortcut.model';
 import { Articulo } from '../../../core/models/articulo.model';
 import { ArticleSearchFeatureComponent } from '../../articulos/article-search-feature/article-search-feature.component';
-import { ShortcutsFooterComponent } from '../../../shared/shortcuts-footer/shortcuts-footer.component';
+import { CurrencyPipe } from '@angular/common';
 
 @Component({
   selector: 'app-search-article-modal',
   standalone: true,
-  imports: [
-    ArticleSearchFeatureComponent,
-    ReactiveFormsModule,
-    ShortcutsFooterComponent
-],
+  imports: [ArticleSearchFeatureComponent, ReactiveFormsModule, CurrencyPipe],
   templateUrl: './search-article-modal.component.html',
   styleUrl: './search-article-modal.component.css',
 })
-export class SearchArticleModalComponent {
+export class SearchArticleModalComponent implements OnInit {
+  ngOnInit(): void {
+    if (this.preselectedArticle) {
+      this.selectedArticleForQuantity = this.preselectedArticle;
+    }
+  }
   // --- Configuración para el componente de búsqueda ---
   public modalTableColumns: TableColumn[] = [
     { field: 'id', header: 'ID' },
@@ -40,6 +41,7 @@ export class SearchArticleModalComponent {
     { key: 'F2', description: 'Buscar' },
     { key: 'Esc', description: 'Cerrar' },
   ];
+  @Input() preselectedArticle: Articulo | null = null;
   // --- OUTPUTS ---
   // Emite el artículo seleccionado para que el padre lo añada al presupuesto.
   @Output() itemAdded = new EventEmitter<{

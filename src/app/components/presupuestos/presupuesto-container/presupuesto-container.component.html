@@ -3,7 +3,7 @@
     [title]="'Generador de Presupuestos'"
     [user]="currentUser"
     [showBackButton]="true"
-    >
+  >
   </app-header>
 
   <!-- Contenido Principal -->
@@ -13,28 +13,28 @@
       <!-- Contenedor de la tabla con scroll -->
       <div
         class="flex-grow bg-white shadow-md rounded-lg overflow-y-auto min-h-0"
-        >
+      >
         <table class="min-w-full">
           <thead class="bg-gray-50 sticky top-0 z-10">
             <tr>
               <th
                 class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-1/2"
-                >
+              >
                 Descripción
               </th>
               <th
                 class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-                >
+              >
                 Cantidad
               </th>
               <th
                 class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-                >
+              >
                 P. Unitario
               </th>
               <th
                 class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-                >
+              >
                 Subtotal
               </th>
               <th
@@ -43,42 +43,41 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200">
-            @for (item of budgetItems; track item) {
-              <tr class="hover:bg-gray-50">
-                <td
-                  class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
-                  >
-                  {{ item.articulo.descripcion }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {{ item.cantidad }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {{ item.precioUnitario | currency : "$" }}
-                </td>
-                <td
-                  class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-800"
-                  >
-                  {{ item.subtotal | currency : "$" }}
-                </td>
-                <td
-                  class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
-                  >
-                  <button
-                    (click)="removeItem(item)"
-                    class="text-red-600 hover:text-red-900"
-                    >
-                    Quitar
-                  </button>
-                </td>
-              </tr>
-            }
-            @if (budgetItems.length === 0) {
-              <tr>
-                <td colspan="5" class="text-center py-10 text-gray-500">
-                  Aún no hay artículos en el presupuesto.
-                </td>
-              </tr>
+            @for (item of presupuestoItems; track item) {
+            <tr class="hover:bg-gray-50">
+              <td
+                class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
+              >
+                {{ item.articulo.descripcion }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {{ item.cantidad }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {{ item.precioUnitario | currency : "$" }}
+              </td>
+              <td
+                class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-800"
+              >
+                {{ item.subtotal | currency : "$" }}
+              </td>
+              <td
+                class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
+              >
+                <button
+                  (click)="removeItem(item)"
+                  class="text-red-600 hover:text-red-900"
+                >
+                  Quitar
+                </button>
+              </td>
+            </tr>
+            } @if (presupuestoItems.length === 0) {
+            <tr>
+              <td colspan="5" class="text-center py-10 text-gray-500">
+                Aún no hay artículos en el presupuesto.
+              </td>
+            </tr>
             }
           </tbody>
         </table>
@@ -93,53 +92,55 @@
           <button
             (click)="openAddArticleModal()"
             class="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 text-white font-semibold bg-blue-600 rounded-md hover:bg-blue-700"
-            >
+          >
             <svg
               xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)"
               viewBox="0 0 20 20"
               fill="currentColor"
               class="w-5 h-5"
-              >
+            >
               <path
                 d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z"
-                />
-              </svg>
-              Añadir Artículo (F2)
-            </button>
-          </div>
-
-          <div class="border-t pt-6 space-y-4">
-            <h2 class="text-xl font-bold text-gray-800">Resumen</h2>
-            <div class="flex justify-between text-lg">
-              <span class="text-gray-600">Subtotal:</span>
-              <span class="font-semibold text-gray-900">{{
-                total | currency : "$"
-              }}</span>
-            </div>
-            <div
-              class="flex justify-between text-2xl font-bold border-t pt-4 mt-4"
-              >
-              <span class="text-gray-800">TOTAL:</span>
-              <span class="text-blue-600">{{ total | currency : "$" }}</span>
-            </div>
-          </div>
-          <div class="flex-grow"></div>
-          <button
-            class="w-full mt-4 px-4 py-3 text-white font-bold bg-green-600 rounded-md hover:bg-green-700"
-            >
-            Finalizar y Generar PDF
+              />
+            </svg>
+            Añadir Artículo (F2)
           </button>
         </div>
-      </div>
-    </main>
 
-    <app-shortcuts-footer [shortcuts]="viewShortcuts"></app-shortcuts-footer>
-
-    @if (isSearchModalOpen) {
-      <app-search-article-modal
-        (itemAdded)="addArticle($event)"
-        (closeModal)="closeAddArticleModal()"
+        <div class="border-t pt-6 space-y-4">
+          <h2 class="text-xl font-bold text-gray-800">Resumen</h2>
+          <div class="flex justify-between text-lg">
+            <span class="text-gray-600">Subtotal:</span>
+            <span class="font-semibold text-gray-900">{{
+              total | currency : "$"
+            }}</span>
+          </div>
+          <div
+            class="flex justify-between text-2xl font-bold border-t pt-4 mt-4"
+          >
+            <span class="text-gray-800">TOTAL:</span>
+            <span class="text-blue-600">{{ total | currency : "$" }}</span>
+          </div>
+        </div>
+        <div class="flex-grow"></div>
+        <button
+          class="w-full mt-4 px-4 py-3 text-white font-bold bg-green-600 rounded-md hover:bg-green-700"
+          (click)="generatePdf()"
         >
-      </app-search-article-modal>
-    }
-  </div>
+          Finalizar y Generar PDF
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <app-shortcuts-footer [shortcuts]="viewShortcuts"></app-shortcuts-footer>
+
+  @if (isSearchOrQuantityModalOpen) {
+  <app-search-article-modal
+    (itemAdded)="addArticle($event)"
+    (closeModal)="closeAddArticleModal()"
+    [preselectedArticle]="preselectedArticleForModal"
+  >
+  </app-search-article-modal>
+  }
+</div>

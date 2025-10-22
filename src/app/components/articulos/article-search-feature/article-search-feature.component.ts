@@ -50,6 +50,7 @@ export class ArticleSearchFeatureComponent
   @Output() articleSelected = new EventEmitter<Articulo>();
   @Output() editClicked = new EventEmitter<Articulo>();
   @Output() deleteClicked = new EventEmitter<Articulo>();
+  @Output() singleResultFound = new EventEmitter<Articulo>();
 
   // --- Lógica Interna ---
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
@@ -83,8 +84,21 @@ export class ArticleSearchFeatureComponent
           ? this.articuloService.getAdminArticulos(searchTerm ?? '', page, 20)
           : this.articuloService.getArticulos(searchTerm ?? '', page, 20);
       }),
+      tap((page) => {
+        if (page.totalElements === 1) {
+          this.singleResultFound.emit(page.content[0]);
+        }
+      }),
       takeUntil(this.destroy$)
     );
+
+    // La suscripción al onBarcodeScan$ sigue aquí, como la teníamos
+    this.keyboardNav.onBarcodeScan$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((barcode) => {
+        this.searchControl.setValue(barcode);
+        this.searchTrigger.next();
+      });
 
     this.keyboardNav.onShortcut$
       .pipe(takeUntil(this.destroy$))
